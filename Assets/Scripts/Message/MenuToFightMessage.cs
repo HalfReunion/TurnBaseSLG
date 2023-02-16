@@ -1,0 +1,16 @@
+﻿using HalfStateFrame;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+public class MenuToFightMessage : MessageHandlerBase
+{
+    public override void Init()
+    {
+        throw new NotImplementedException();
+    }
+
+}
+ 
