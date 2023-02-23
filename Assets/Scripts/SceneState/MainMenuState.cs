@@ -16,6 +16,7 @@ public class MainMenuState : StateBase
             RegisterModel(message);
         }
         RegisterSystem(new TeamCustomSystem());
+
         RegisterSystem(new TeamMenuUI()).OpenUI<TeamCustom>();
     }
 

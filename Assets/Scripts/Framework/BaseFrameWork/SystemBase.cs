@@ -6,17 +6,14 @@ using System.Threading.Tasks;
 
 namespace HalfStateFrame
 {
-
-    
     public interface ISystem
     {
         public void Init();
     }
 
     public abstract class SystemBase : ISystem
-    {
-        private bool hasInit;
-        private IModule module;
+    { 
+        private bool hasInit; 
         public virtual void Init()
         {
             if (!hasInit)
@@ -25,12 +22,12 @@ namespace HalfStateFrame
                 hasInit = true;
             } 
         }
-
-        public void SetModule(IModule module)
-        {
-            this.module = module;
-        }
+         
         protected abstract void OnInit();
+
+        protected IState Current {
+            get { return GameMainLoop.Instance.CurrentState; } 
     }
+}
 
 }

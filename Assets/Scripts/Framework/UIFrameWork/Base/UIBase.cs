@@ -37,6 +37,7 @@ public interface IUIBase
 
 public abstract class UIBase : MonoBehaviour, IUIBase
 {
+
     public virtual string UIName { get { return null; } }
 
     public  UI_Status UIState => m_Status;
@@ -46,12 +47,17 @@ public abstract class UIBase : MonoBehaviour, IUIBase
     protected UI_Status m_Status = UI_Status.Close;
     protected UI_Level m_Level;
 
+    protected UISystem uiSystem;
     
     protected Transform root;
 
     public void Awake()
     { 
         OnInit();
+    }
+
+    public void Init(UISystem uiSystem) {
+        this.uiSystem = uiSystem;
     }
 
     protected virtual void OnInit(){}

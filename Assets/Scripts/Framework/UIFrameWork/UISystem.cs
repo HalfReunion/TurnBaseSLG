@@ -5,7 +5,7 @@ using UnityEngine;
 using HalfStateFrame; 
 using Newtonsoft.Json;
 using Unity.VisualScripting;
-using static Deserialize_Data_UI;
+ 
 using Cysharp.Threading.Tasks;
 using System.Linq;
 using System.Reflection;
@@ -42,11 +42,18 @@ public abstract class UISystem: ISystem
         uiDict.Add(typeof(T), uiBase);
     }
 
-    public UIBase OpenUI<T>() {
+    public UIBase OpenUI<T>(UISystem uiSystem = null) {
+        
         if (uiDict.TryGetValue(typeof(T), out var uiBase))
         {
             uiBase.Show();
         }
+
+        if (uiSystem != null)
+        {
+            uiBase.Init(uiSystem);
+        }
+
         return uiBase;
     }
 
@@ -80,7 +87,7 @@ public abstract class UISystem: ISystem
 
         List<Deserialize_Data_UI> list = SerializeTool.DeserializeToList<Deserialize_Data_UI>(jsonTxt);
 
-        Child_Data_UI[] result = (from a in list
+        Deserialize_Data_UI.Child_Data_UI[] result = (from a in list
                                   where a.SystemName == systemName select a)
                                   .FirstOrDefault().ChildUIs;
 

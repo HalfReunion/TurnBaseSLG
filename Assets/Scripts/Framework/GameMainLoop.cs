@@ -23,8 +23,7 @@ public class GameMainLoop : MonoSingleton<GameMainLoop>
         Debug.Log("Start");
         m_States = new Dictionary<Type, IState>();
         Init();
-    }
-
+    } 
     private void Init() {
         //添加场景
         MainMenuState mainMenu = new MainMenuState(); 
