@@ -1,10 +1,6 @@
-using JetBrains.Annotations;
 using Sirenix.OdinInspector;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using TMPro;
 using UnityEngine;
 
 public interface TakeCombineGridPos
@@ -15,12 +11,13 @@ public interface TakeCombineGridPos
 public class MoveAction : BaseAction, TakeCombineGridPos
 {
     public event EventHandler OnStartMoving;
-    public event EventHandler OnStopMoving;
 
+    public event EventHandler OnStopMoving;
 
     private Vector3 targetPosition;
 
     private GridPos targetGridPos;
+
     [SerializeField]
     private float moveSpeed;
 
@@ -66,7 +63,6 @@ public class MoveAction : BaseAction, TakeCombineGridPos
         return true;
     }
 
-
     // Start is called before the first frame update
     protected override void Awake()
     {
@@ -76,7 +72,7 @@ public class MoveAction : BaseAction, TakeCombineGridPos
         maxMoveGridPosList = new List<GridPos>();
     }
 
-    void Update()
+    private void Update()
     {
         if (!isActive)
         {
@@ -86,14 +82,14 @@ public class MoveAction : BaseAction, TakeCombineGridPos
         Vector3 pos = (targetPosition - transform.position).normalized;
         if (Vector3.Magnitude((targetPosition - transform.position)) > .1f)
         {
-            //anim.SetBool("IsWalking", true);  
+            //anim.SetBool("IsWalking", true);
             transform.position += pos * Time.deltaTime * moveSpeed;
             //aN.MoveAction_OnStartMoving(this, EventArgs.Empty);
             OnStartMoving?.Invoke(this, EventArgs.Empty);
         }
         else
         {
-            //anim.SetBool("IsWalking", false); 
+            //anim.SetBool("IsWalking", false);
             OnStopMoving?.Invoke(this, EventArgs.Empty);
             ActionComplete();
         }
@@ -158,8 +154,6 @@ public class MoveAction : BaseAction, TakeCombineGridPos
         return maxMoveGridPosList;
     }
 
-
-
     public override string GetActionName()
     {
         return "MoveAction";
@@ -183,6 +177,5 @@ public class MoveAction : BaseAction, TakeCombineGridPos
         }
         gridPos1 = maxGridPos;
         gridPos2 = moveGridPosList;
-
     }
 }

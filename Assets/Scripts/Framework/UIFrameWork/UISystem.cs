@@ -8,11 +8,14 @@ using Unity.VisualScripting;
  
 using Cysharp.Threading.Tasks;
 using System.Linq;
-using System.Reflection;
 
+using IState = HalfStateFrame.IState;
 public abstract class UISystem: ISystem
 {
-   
+    protected IState Current
+    {
+        get { return GameMainLoop.Instance.CurrentState; }
+    }
     Dictionary<Type,GameObject> objDict = new Dictionary<Type, GameObject>();
     Dictionary<Type, UIBase> uiDict = new Dictionary<Type, UIBase>();
 
@@ -30,6 +33,7 @@ public abstract class UISystem: ISystem
         if (uiDict.TryGetValue(typeof(T),out var uiBase)) {
             return uiBase;
         }
+        uiBase.Init(this);
         return null;
     }
 
@@ -42,18 +46,14 @@ public abstract class UISystem: ISystem
         uiDict.Add(typeof(T), uiBase);
     }
 
-    public UIBase OpenUI<T>(UISystem uiSystem = null) {
+    public UIBase OpenUI<T>() {
         
         if (uiDict.TryGetValue(typeof(T), out var uiBase))
         {
             uiBase.Show();
         }
 
-        if (uiSystem != null)
-        {
-            uiBase.Init(uiSystem);
-        }
-
+        uiBase.Init(this); 
         return uiBase;
     }
 
@@ -83,7 +83,7 @@ public abstract class UISystem: ISystem
         //ABResLoader.Instance.LoadAsset<GameObject>("ui/teammenu", child.name)
 
 
-        if (jsonTxt == null) { jsonTxt = ABResLoader.Instance.LoadAsset<TextAsset>("data", "ui_prefab_path"); }
+        if (jsonTxt == null) { jsonTxt = ABResLoader.Instance.LoadAsset<TextAsset>("data/custom", "ui_prefab_path"); }
 
         List<Deserialize_Data_UI> list = SerializeTool.DeserializeToList<Deserialize_Data_UI>(jsonTxt);
 

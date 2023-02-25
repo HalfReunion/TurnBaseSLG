@@ -13,6 +13,8 @@ public interface IResLoader
 }
 
 
+
+
 public class ABResLoader : Singleton<ABResLoader>, IResLoader
 {
     //主包
@@ -83,6 +85,7 @@ public class ABResLoader : Singleton<ABResLoader>, IResLoader
             if (!abDic.ContainsKey(strs[i]))
             {
                 AssetBundle ab = AssetBundle.LoadFromFile(PathUrl + strs[i]);
+                
                 if (ab != null)
                 {
                     Debug.Log("LoadDependencies：添加");
@@ -106,6 +109,20 @@ public class ABResLoader : Singleton<ABResLoader>, IResLoader
         }
         T obj = abDic[abName].LoadAsset<T>(resName);
         return obj;
+    }
+
+    public List<T> LoadAssets<T>(string abName) where T : UnityEngine.Object  {
+        LoadDependencies(abName);
+        if (!abDic.ContainsKey(abName))
+        {
+            AssetBundle ab = AssetBundle.LoadFromFile(PathUrl + abName); 
+            if (ab != null)
+            {
+                abDic.Add(abName, ab);
+            }
+        }
+        List<T> chars = abDic[abName].LoadAllAssets<T>().ToList();
+        return chars;
     }
 
     public GameObject GetGameObject(string abName, string resName) {

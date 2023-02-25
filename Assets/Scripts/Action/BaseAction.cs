@@ -1,18 +1,15 @@
-using Sirenix.Utilities;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 public abstract class BaseAction : MonoBehaviour
-{ 
+{
     public static event EventHandler OnBeforeConfirm;
 
     public static event EventHandler OnAnyActionCompleted;
 
     public static event EventHandler<GridPos> OnConfirmAction;
-    
+
     //该回合已经执行过命令
     protected bool hasTaken;
 
@@ -44,25 +41,22 @@ public abstract class BaseAction : MonoBehaviour
 
     public abstract string GetActionName();
 
-
-   
-
-    public virtual void ConfirmAction(GridPos mouseGridPosition,Action onActionStart ,Action onActionComplete)
-    { 
+    public virtual void ConfirmAction(GridPos mouseGridPosition, Action onActionStart, Action onActionComplete)
+    {
         this.onActionComplete = onActionComplete;
         this.onActionStart = onActionStart;
-        this.onActionStart += CostAction; 
-        OnBeforeConfirm?.Invoke(this, EventArgs.Empty); 
-        OnConfirmAction?.Invoke(this, mouseGridPosition); 
+        this.onActionStart += CostAction;
+        OnBeforeConfirm?.Invoke(this, EventArgs.Empty);
+        OnConfirmAction?.Invoke(this, mouseGridPosition);
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="gridPos"></param>
     /// <returns></returns>
     public virtual bool IsValidActionGridPos(GridPos gridPos)
-    { 
+    {
         List<GridPos> moveGridPosList = GetVaildActionGridPositionList();
         if (moveGridPosList != null)
         {
@@ -71,11 +65,13 @@ public abstract class BaseAction : MonoBehaviour
         return false;
     }
 
-    public virtual int GetActionPointsCost() {
+    public virtual int GetActionPointsCost()
+    {
         return actionPoint;
     }
 
-    public void CostAction() {
+    public void CostAction()
+    {
         hasTaken = true;
     }
 
@@ -93,26 +89,28 @@ public abstract class BaseAction : MonoBehaviour
     /// 动作开始时的初始化
     /// </summary>
     /// <param name="onActionComplete"></param>
-    protected virtual void ActionStart() 
+    protected virtual void ActionStart()
     {
         onActionStart();
-        isActive = true; 
+        isActive = true;
     }
 
-    protected void ActionComplete() 
+    protected void ActionComplete()
     {
         CostAction();
-        
-        isActive = false; 
+
+        isActive = false;
         onActionComplete();
         OnAnyActionCompleted?.Invoke(this, EventArgs.Empty);
         ResetActionPoint();
     }
+
     private void TurnSystem_OnTurnChanged(object sender, EventArgs e)
     {
         ResetAction();
-    } 
+    }
 
     public abstract void TakeAction(GridPos gridPos);
+
     public abstract List<GridPos> GetVaildActionGridPositionList();
 }

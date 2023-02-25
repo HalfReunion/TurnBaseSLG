@@ -21,7 +21,7 @@ namespace HalfStateFrame
         public void Init(); 
     } 
 
-    public class Model<T> : IModel  where T : MessageHandlerBase
+    public abstract class Model<T> : IModel 
     { 
         private T t;
 
@@ -30,18 +30,7 @@ namespace HalfStateFrame
         }
 
         public virtual void Init() {  
-        }
-
-        public Model(T t)
-        {
-            this.t = t; 
-        }
-
-        public static Model<T> GetModel(T t) {
-            Model<T> model = new Model<T>(t);
-            return model;
-        }
-
-       
+        } 
+      
     }
 }

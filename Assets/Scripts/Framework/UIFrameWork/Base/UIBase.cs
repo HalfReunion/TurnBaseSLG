@@ -57,6 +57,7 @@ public abstract class UIBase : MonoBehaviour, IUIBase
     }
 
     public void Init(UISystem uiSystem) {
+        if(this.uiSystem != null) { return; }
         this.uiSystem = uiSystem;
     }
 
@@ -84,7 +85,7 @@ public abstract class UIBase : MonoBehaviour, IUIBase
         {
             Transform temp = root.Find(m_Level.ToString());
             Instantiate(gameObject, temp);
-        }
+        }   
         m_Status = UI_Status.Open;
         if (gameObject.activeSelf != false) return;
         //if (layer != -1) gameObject.transform.SetSiblingIndex(layer);

@@ -31,6 +31,10 @@ namespace HalfStateFrame
         public TModel GetModel<TModel>() where TModel : IModel;
 
         public TSystem GetSystem<TSystem>() where TSystem : ISystem;
+
+        public TMono GetMono<TMono>() where TMono : MonoBase<TMono>;
+
+        public TMono RegisterMono<TMono>(TMono mono) where TMono : MonoBase<TMono>;
     }
 
 
@@ -38,7 +42,8 @@ namespace HalfStateFrame
     {
         Dictionary<Type, ISystem> systems = new Dictionary<Type, ISystem>();
         Dictionary<Type, IEventItem> events = new Dictionary<Type, IEventItem>();
-        Dictionary<Type, IModel> models = new Dictionary<Type, IModel>();
+        Dictionary<Type, IModel> models = new Dictionary<Type, IModel>(); 
+        Dictionary<Type, MonoBase> monos = new Dictionary<Type, MonoBase>();
 
         protected IState lastState;
 
@@ -68,6 +73,7 @@ namespace HalfStateFrame
             Type type = model.GetType();
             if (!models.ContainsKey(type))
             {
+                model.Init();
                 models.Add(type, model);
             }
             return model;
@@ -121,6 +127,26 @@ namespace HalfStateFrame
                 return (TSystem)system;
             }
             return default(TSystem);
+        }
+
+        public TMono GetMono<TMono>() where TMono : MonoBase
+        {
+            Type type = typeof(TMono);
+            if (systems.TryGetValue(type, out var mono))
+            {
+                return (TMono)mono;
+            }
+            return default(TMono);
+        }
+
+        public TMono RegisterMono<TMono>(TMono mono) where TMono : MonoBase
+        {
+            Type type = mono.GetType();
+            if (!systems.ContainsKey(type))
+            {
+                monos.Add(type, mono); 
+            }
+            return mono;
         }
     }
 
