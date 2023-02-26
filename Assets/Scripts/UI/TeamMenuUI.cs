@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 public class TeamMenuUI : UISystem
 {
     TeamCustomSystem teamCustom ;
@@ -9,7 +11,7 @@ public class TeamMenuUI : UISystem
         base.Init(); 
     }
 
-    public void GetPartyData() {
-        
+    public List<PartyViewModel.CharacterTData> GetPartyData() {
+        return teamCustom.PartyViewData();
     }
 }

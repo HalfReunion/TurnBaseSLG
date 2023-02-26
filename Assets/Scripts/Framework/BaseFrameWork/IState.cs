@@ -1,9 +1,11 @@
 ﻿ 
 using System;
 using System.Collections.Generic;
+ 
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks; 
+using System.Threading.Tasks;
+using UnityEngine;
 
 namespace HalfStateFrame
 {
@@ -32,9 +34,9 @@ namespace HalfStateFrame
 
         public TSystem GetSystem<TSystem>() where TSystem : ISystem;
 
-        public TMono GetMono<TMono>() where TMono : MonoBase<TMono>;
+        public TMono GetMono<TMono>() where TMono : IMono;
 
-        public TMono RegisterMono<TMono>(TMono mono) where TMono : MonoBase<TMono>;
+        public TMono RegisterMono<TMono>(TMono mono) where TMono : IMono;
     }
 
 
@@ -43,7 +45,7 @@ namespace HalfStateFrame
         Dictionary<Type, ISystem> systems = new Dictionary<Type, ISystem>();
         Dictionary<Type, IEventItem> events = new Dictionary<Type, IEventItem>();
         Dictionary<Type, IModel> models = new Dictionary<Type, IModel>(); 
-        Dictionary<Type, MonoBase> monos = new Dictionary<Type, MonoBase>();
+        Dictionary<Type, IMono> monos = new Dictionary<Type, IMono>();
 
         protected IState lastState;
 
@@ -75,6 +77,7 @@ namespace HalfStateFrame
             {
                 model.Init();
                 models.Add(type, model);
+                Debug.Log($"RegisterModel:{type.Name}");
             }
             return model;
         }
@@ -86,6 +89,7 @@ namespace HalfStateFrame
             {
                 EventItem<TParam> item = new EventItem<TParam>();
                 item.RegisterEvent(ev);
+                Debug.Log($"RegisterEvent:{type.Name}");
             }
             
         }
@@ -106,6 +110,7 @@ namespace HalfStateFrame
             {
                 systems.Add(type, system);
                 system.Init();
+                Debug.Log($"RegisterSystem:{type.Name}");
             }
             return system;
         }
@@ -129,7 +134,7 @@ namespace HalfStateFrame
             return default(TSystem);
         }
 
-        public TMono GetMono<TMono>() where TMono : MonoBase
+        public TMono GetMono<TMono>() where TMono : IMono
         {
             Type type = typeof(TMono);
             if (systems.TryGetValue(type, out var mono))
@@ -139,12 +144,13 @@ namespace HalfStateFrame
             return default(TMono);
         }
 
-        public TMono RegisterMono<TMono>(TMono mono) where TMono : MonoBase
+        public TMono RegisterMono<TMono>(TMono mono) where TMono :IMono
         {
             Type type = mono.GetType();
             if (!systems.ContainsKey(type))
             {
-                monos.Add(type, mono); 
+                monos.Add(type, mono);
+                Debug.Log($"RegisterMono:{type.Name}");
             }
             return mono;
         }

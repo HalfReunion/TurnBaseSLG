@@ -47,6 +47,7 @@ public abstract class UIBase : MonoBehaviour, IUIBase
     protected UI_Status m_Status = UI_Status.Close;
     protected UI_Level m_Level;
 
+
     protected UISystem uiSystem;
     
     protected Transform root;
@@ -57,7 +58,7 @@ public abstract class UIBase : MonoBehaviour, IUIBase
     }
 
     public void Init(UISystem uiSystem) {
-        if(this.uiSystem != null) { return; }
+        if(this.uiSystem != null ) { return; }
         this.uiSystem = uiSystem;
     }
 
@@ -83,8 +84,8 @@ public abstract class UIBase : MonoBehaviour, IUIBase
         
         if (m_Status == UI_Status.Close)
         {
-            Transform temp = root.Find(m_Level.ToString());
-            Instantiate(gameObject, temp);
+            Transform rootTr = root.Find(m_Level.ToString());
+            Instantiate(gameObject, rootTr);
         }   
         m_Status = UI_Status.Open;
         if (gameObject.activeSelf != false) return;

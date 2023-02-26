@@ -2,6 +2,7 @@ using HalfStateFrame;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static PartyViewModel;
 
 public class TeamCustomSystem : SystemBase
 {   
@@ -15,8 +16,8 @@ public class TeamCustomSystem : SystemBase
     /// <summary>
     /// ·µ»Ø
     /// </summary>
-    public void PartyViewData() { 
-        
+    public List<CharacterTData> PartyViewData() { 
+        return Current.GetModel<PartyViewModel>().GetValue;
     }
 
 

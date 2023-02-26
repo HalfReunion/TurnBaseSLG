@@ -50,10 +50,10 @@ public abstract class UISystem: ISystem
         
         if (uiDict.TryGetValue(typeof(T), out var uiBase))
         {
+            uiBase.Init(this);
             uiBase.Show();
         }
-
-        uiBase.Init(this); 
+         
         return uiBase;
     }
 
