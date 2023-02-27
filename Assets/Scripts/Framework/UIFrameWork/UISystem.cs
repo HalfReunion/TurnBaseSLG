@@ -54,6 +54,7 @@ public abstract class UISystem: ISystem
             uiBase.Show();
         }
          
+
         return uiBase;
     }
 
