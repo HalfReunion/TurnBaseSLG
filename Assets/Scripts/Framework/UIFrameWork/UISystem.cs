@@ -46,17 +46,28 @@ public abstract class UISystem: ISystem
         uiDict.Add(typeof(T), uiBase);
     }
 
-    public UIBase OpenUI<T>() {
-        
+    public UIBase OpenUI<T>()
+    {
         if (uiDict.TryGetValue(typeof(T), out var uiBase))
         {
-            uiBase.Init(this);
-            uiBase.Show();
-        }
-         
+            UIBase ui = uiBase.Show();
 
-        return uiBase;
+            objDict[typeof(T)] = ui.gameObject;
+            uiDict[typeof(T)] = ui;
+            ui.Init(this);
+            return ui;
+        }
+        return null;
     }
+
+    public void ShowUI<T>()
+    {
+        if (uiDict.TryGetValue(typeof(T), out var uiBase))
+        {
+            UIBase ui = uiBase.Show();
+        }
+    }
+
 
     public void HideUI<T>()
     {

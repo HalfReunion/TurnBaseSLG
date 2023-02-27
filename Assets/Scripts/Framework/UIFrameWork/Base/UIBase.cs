@@ -1,14 +1,14 @@
-
 using Cysharp.Threading.Tasks.Triggers;
 using HalfStateFrame;
 using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization.Json;
 using UnityEngine;
 
 public enum UI_Status
-{ 
+{
     Close,
     Open,
     Hide
@@ -28,7 +28,7 @@ public interface IUIBase
     public UI_Status UIState { get; }
 
     public UI_Level UILevel { get; }
-    public void Show();
+    public UIBase Show();
     public void Hide();
     public void Close();
 }
@@ -40,7 +40,7 @@ public abstract class UIBase : MonoBehaviour, IUIBase
 
     public virtual string UIName { get { return null; } }
 
-    public  UI_Status UIState => m_Status;
+    public UI_Status UIState => m_Status;
 
     public UI_Level UILevel { get => m_Level; set => m_Level = value; }
 
@@ -49,20 +49,21 @@ public abstract class UIBase : MonoBehaviour, IUIBase
 
 
     protected UISystem uiSystem;
-    
+
     protected Transform root;
 
     public void Awake()
-    { 
+    {
         OnInit();
     }
 
-    public void Init(UISystem uiSystem) {
-        if(this.uiSystem != null ) { return; }
+    public void Init(UISystem uiSystem)
+    {
+        if (this.uiSystem != null) { return; }
         this.uiSystem = uiSystem;
     }
 
-    protected virtual void OnInit(){}
+    protected virtual void OnInit() { }
     public virtual void Close()
     {
         m_Status = UI_Status.Close;
@@ -75,24 +76,25 @@ public abstract class UIBase : MonoBehaviour, IUIBase
         gameObject.SetActive(false);
     }
 
-    public virtual void Show()
+    public virtual UIBase Show()
     {
-        
-        if (root == null) {
+
+        if (root == null)
+        {
             root = GameObject.FindGameObjectWithTag("MainCanvas").transform;
         }
-        
         if (m_Status == UI_Status.Close)
         {
             Transform rootTr = root.Find(m_Level.ToString());
-            Instantiate(gameObject, rootTr);
-        }   
-        m_Status = UI_Status.Open;
-        if (gameObject.activeSelf != false) return;
+            m_Status = UI_Status.Open;
+            UIBase obj = Instantiate(this, rootTr);
+            return obj;
+        }
         //if (layer != -1) gameObject.transform.SetSiblingIndex(layer);
-        gameObject.SetActive(true); 
+        if (gameObject.activeSelf == false) gameObject.SetActive(true);
+
+        return this;
     }
 
-    
+
 }
- 
