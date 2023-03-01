@@ -23,4 +23,11 @@ public class SerializeTool
 
         return data;
     }
+
+    public static T Deserialize<T>(string txt)
+    { 
+        var data = JsonConvert.DeserializeObject<T>(txt);
+
+        return data;
+    }
 }

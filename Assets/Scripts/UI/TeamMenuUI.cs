@@ -11,7 +11,17 @@ public class TeamMenuUI : UISystem
         base.Init(); 
     }
 
-    public List<PartyViewModel.CharacterTData> GetPartyData() {
-        return teamCustom.PartyViewData();
+    public TeamSelection GetSelectComponent() {
+        TeamSelection selction = GetUI<TeamSelection>();
+        return selction;
+    }
+
+    public List<PartyViewModel.CharacterInfoData> GetCustomTeamData()
+    {
+        return teamCustom.GetPartyViewData();
+    }
+
+    public List<PartyViewModel.CharacterInfoData> GetPartyData() {
+        return teamCustom.GetPartyViewData();
     }
 }

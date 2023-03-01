@@ -28,12 +28,12 @@ public abstract class UISystem: ISystem
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public UIBase GetUI<T>() where T:IUIBase {
-        
+    public T GetUI<T>() where T: class,IUIBase
+    { 
         if (uiDict.TryGetValue(typeof(T),out var uiBase)) {
-            return uiBase;
-        }
-        uiBase.Init(this);
+            uiBase.Init(this);
+            return uiBase as T;
+        } 
         return null;
     }
 
@@ -112,8 +112,6 @@ public abstract class UISystem: ISystem
             objDict.Add(type, gbj);
             uiDict.Add(type, io);
 
-            //临时
-            break;
     }
 }
 }

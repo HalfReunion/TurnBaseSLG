@@ -1,34 +1,33 @@
-﻿ 
-using System;
+﻿using System;
 using System.Collections.Generic;
- 
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace HalfStateFrame
 {
-    public interface IGetState{
+    public interface IGetState
+    {
         IState CurrentState { get; }
     }
 
     public interface IGetSystem
     {
-        
     }
 
     public interface IState
     {
         public void OnUpdate(float time);
+
         public void OnEnter(IModel message);
+
         public void OnExit(out IModel message);
 
         public TModel RegisterModel<TModel>(TModel model) where TModel : IModel;
-        public void RegisterEvent<TParam>(Action<TParam> ev);
+
+        public void RegisterEvent<TParam>(string ev, Action<TParam> act);
+
         public TSystem RegisterSystem<TSystem>(TSystem system) where TSystem : ISystem;
 
-        public void EventTrigger<TEvent, TParam>(TParam t) where TEvent : EventItem<TParam>;
+        public void EventTrigger<TParam>(string evn, TParam t) ;
 
         public TModel GetModel<TModel>() where TModel : IModel;
 
@@ -39,13 +38,12 @@ namespace HalfStateFrame
         public TMono RegisterMono<TMono>(TMono mono) where TMono : IMono;
     }
 
-
     public abstract class StateBase : IState
     {
-        Dictionary<Type, ISystem> systems = new Dictionary<Type, ISystem>();
-        Dictionary<Type, IEventItem> events = new Dictionary<Type, IEventItem>();
-        Dictionary<Type, IModel> models = new Dictionary<Type, IModel>(); 
-        Dictionary<Type, IMono> monos = new Dictionary<Type, IMono>();
+        private Dictionary<Type, ISystem> systems = new Dictionary<Type, ISystem>();
+        private Dictionary<string, IEventItem> events = new Dictionary<string, IEventItem>();
+        private Dictionary<Type, IModel> models = new Dictionary<Type, IModel>();
+        private Dictionary<Type, IMono> monos = new Dictionary<Type, IMono>();
 
         protected IState lastState;
 
@@ -55,18 +53,21 @@ namespace HalfStateFrame
             {
                 item.Value.Init();
             }
-        } 
+        }
 
         public abstract void OnUpdate(float time);
+
         public abstract void OnEnter(IModel message);
+
         public abstract void OnExit(out IModel message);
 
-        public void SetLastState(IState lastState) {
+        public void SetLastState(IState lastState)
+        {
             this.lastState = lastState;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="TModel"> Model<信息类型> </typeparam>
         /// <param name="model"></param>
@@ -82,25 +83,28 @@ namespace HalfStateFrame
             return model;
         }
 
-        public void RegisterEvent<TParam>(Action<TParam> ev) 
-        {   
-            Type type = ev.GetType();
-            if (!events.ContainsKey(type))
+        public void RegisterEvent<TParam>(string evn, Action<TParam> act)
+        { 
+            if (events.TryGetValue(evn, out var val)) 
             {
-                EventItem<TParam> item = new EventItem<TParam>();
-                item.RegisterEvent(ev);
-                Debug.Log($"RegisterEvent:{type.Name}");
+                (val as EventItem<TParam>).RegisterEvent(act);
+                Debug.Log($"RegisterAct");
+                return;
             }
-            
+            EventItem<TParam> ev = new EventItem<TParam>();
+            ev.RegisterEvent(act);
+            events.Add(evn, ev); 
+            Debug.Log($"RegisterEvent:{ev}");
         }
 
-        public void EventTrigger<TEvent, TParam>(TParam t) where TEvent : EventItem<TParam> 
+        public void EventTrigger<TParam>(string evn,TParam t) 
         {
-            Type type = typeof(TEvent);
-            if (events.TryGetValue(type, out var eventItem))
+            if (events.TryGetValue(evn, out var eventItem))
             {
-                ((TEvent)eventItem).Trigger(t);
+                (eventItem as EventItem<TParam>).Trigger(t);
+                return;
             }
+
         }
 
         public TSystem RegisterSystem<TSystem>(TSystem system) where TSystem : ISystem
@@ -115,7 +119,7 @@ namespace HalfStateFrame
             return system;
         }
 
-        public TModel GetModel<TModel>() where TModel:IModel
+        public TModel GetModel<TModel>() where TModel : IModel
         {
             Type type = typeof(TModel);
             if (models.TryGetValue(type, out var model))
@@ -128,7 +132,8 @@ namespace HalfStateFrame
         public TSystem GetSystem<TSystem>() where TSystem : ISystem
         {
             Type type = typeof(TSystem);
-            if (systems.TryGetValue(type, out var system)) {
+            if (systems.TryGetValue(type, out var system))
+            {
                 return (TSystem)system;
             }
             return default(TSystem);
@@ -144,16 +149,16 @@ namespace HalfStateFrame
             return default(TMono);
         }
 
-        public TMono RegisterMono<TMono>(TMono mono) where TMono :IMono
+        public TMono RegisterMono<TMono>(TMono mono) where TMono : IMono
         {
             Type type = mono.GetType();
             if (!systems.ContainsKey(type))
             {
+                mono.Init();
                 monos.Add(type, mono);
                 Debug.Log($"RegisterMono:{type.Name}");
             }
             return mono;
         }
     }
-
 }
