@@ -152,7 +152,7 @@ namespace HalfStateFrame
         public TMono RegisterMono<TMono>(TMono mono) where TMono : IMono
         {
             Type type = mono.GetType();
-            if (!systems.ContainsKey(type))
+            if (!monos.ContainsKey(type))
             {
                 mono.Init();
                 monos.Add(type, mono);

@@ -1,3 +1,4 @@
+using Assets.Scripts.Model;
 using HalfStateFrame;
 using System;
 using System.Collections;
@@ -13,16 +14,24 @@ public class TeamCustomSystem : SystemBase
     {
         Debug.Log("初始化TeamCustomSystem");
         PartyViewModel viewModel = new PartyViewModel(); 
-        PartyTeamCustomModel partyModel  = new PartyTeamCustomModel();
-         
+        //PartyTeamCustomModel partyModel  = new PartyTeamCustomModel();
+        UI3DCharacterData renderModel = new UI3DCharacterData();
         Current.RegisterModel(viewModel); 
-        Current.RegisterModel(partyModel);
+        //Current.RegisterModel(partyModel);
+        Current.RegisterModel(renderModel);
+            
         Current.RegisterEvent<int>("OnTeamCustomChanged", OnTeamCustomToggleClick);
-        
-    }
-
+        Current.RegisterEvent<int>("OnTeamCustomChanged", SaveToTeamCustom);
+    } 
+    
     private void OnTeamCustomToggleClick(int idx) { 
         
+    } 
+
+    //写入文件
+    private void SaveToTeamCustom(int idx) {
+        PartyTeamCustomModel partyModel = Current.GetModel<PartyTeamCustomModel>();
+
     }
 
     public void TriggerToggleEvent(int idx) {
@@ -44,6 +53,9 @@ public class TeamCustomSystem : SystemBase
     {
         return Current.GetModel<PartyTeamCustomModel>().GetValue;
     }
-
+    public List<RenderTexture> GetRenderTextures()
+    {
+        return Current.GetModel<UI3DCharacterData>().GetValue;
+    }
 
 }

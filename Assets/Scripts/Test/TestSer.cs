@@ -27,6 +27,6 @@ public class TestSer : MonoBehaviour
     }
 
     public void CreateUI() {
-        GameMainLoop.Instance.CurrentState.GetSystem<TeamMenuUI>().OpenUI<TeamCustomUI>();
+        GameMainLoop.Instance.CurrentState.GetSystem<TeamMenuUISystem>().OpenUI<TeamCustomUI>();
     }
 }
