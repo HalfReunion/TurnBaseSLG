@@ -1,5 +1,6 @@
 using HalfStateFrame;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static PartyViewModel;
 
@@ -20,25 +21,14 @@ public class TeamCustomSystem : SystemBase
         Current.RegisterModel(viewModel);
         Current.RegisterModel(partyModel);
         Current.RegisterModel(renderModel);
-        Current.RegisterEvent<int, int>("OnTeamCustomChanged", OnTeamCustomToggleClick);
-        Current.RegisterEvent<int, int>("OnTeamCustomChanged", SaveToTeamCustom);
+        //Current.RegisterEvent<int, int>("OnTeamCustomChanged", OnTeamCustomToggleClick);
+        //Current.RegisterEvent<int, int>("OnTeamCustomChanged", SaveToTeamCustom);
         DataInit();
     }
 
     private void DataInit()
     {
         currentCustomTeam = Current.GetModel<PartyTeamCustomModel>().GetValue[0];
-    }
-
-    /// <summary>
-    /// 使用nextIdx，改变当前的List
-    /// </summary>
-    /// <param name="nextIdx"></param>
-    /// <param name="lastIdx"></param>
-    private void OnTeamCustomToggleClick(int nextIdx, int lastIdx)
-    {
-        if (nextIdx == -1) return;
-        currentCustomTeam = Current.GetModel<PartyTeamCustomModel>().GetValue[nextIdx];
     }
 
     //写入文件，使用lastIdx
@@ -54,7 +44,14 @@ public class TeamCustomSystem : SystemBase
     /// <param name="idx"></param>
     public void TriggerToggleEvent(int idx)
     {
-        Current.EventTrigger("OnTeamCustomChanged", idx, -1);
+        currentCustomTeam = Current.GetModel<PartyTeamCustomModel>().GetValue[idx];
+        Current.EventTrigger("ChangeOneRenderChar", idx, RenderChangeType.All);
+        for (int i = 0; i < currentCustomTeam.Count; i++)
+        {
+            Current.EventTrigger("CharWithCharMsgChanged",
+                currentCustomTeam[i]
+                , i);
+        }
     }
 
     /// <summary>
@@ -76,7 +73,7 @@ public class TeamCustomSystem : SystemBase
     }
 
     public void AddCharInTeam(int idx)
-    { 
+    {
         //3种情况：1：啥都没有 2：有，但是需要扩展槽位 3：有，很多空位是null
         if (currentCustomTeam == null)
         {
@@ -84,24 +81,38 @@ public class TeamCustomSystem : SystemBase
             return;
         }
         Debug.Log($"AddCharacter:{idx}");
-       
-        int nullIdx = currentCustomTeam.IndexOf(null);
 
-        if (nullIdx == -1 && currentCustomTeam.Count >= 4) return;
-        if (nullIdx != -1)
+        int slotIdx = currentCustomTeam.IndexOf(null);
+
+        if (slotIdx == -1 && currentCustomTeam.Count >= 4) return;
+        CharacterInfoData charInfo = Current.GetModel<PartyViewModel>().GetValue[idx];
+
+        bool existsChar = currentCustomTeam.Count(x => { if (x != null) { return x.Name.Equals(charInfo.Name); } return false; }) > 0;
+        if (existsChar) return;
+
+        if (slotIdx != -1)
         {
-            currentCustomTeam[nullIdx] = Current.GetModel<PartyViewModel>().GetValue[idx];
+            currentCustomTeam[slotIdx] = charInfo;
         }
         else
         {
-            currentCustomTeam.Add(Current.GetModel<PartyViewModel>().GetValue[idx]);
+            currentCustomTeam.Add(charInfo);
+            slotIdx = currentCustomTeam.Count - 1;
         }
 
         //触发更换角色的效果
-        Current.EventTrigger("ChangeOneRenderChar", idx);
+        Current.EventTrigger("ChangeOneRenderChar", idx, RenderChangeType.Add);
+        Current.EventTrigger("CharWithCharMsgChanged",
+            charInfo
+            , slotIdx);
     }
 
     public void DelCharInTeam(int idx)
     {
+        currentCustomTeam[idx] = null;
+        Current.EventTrigger<CharacterInfoData, int>("CharWithCharMsgChanged",
+            null
+            , idx);
+        Current.EventTrigger("ChangeOneRenderChar", idx, RenderChangeType.Del);
     }
 }
