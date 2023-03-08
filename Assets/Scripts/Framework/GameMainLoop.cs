@@ -17,11 +17,14 @@ public class GameMainLoop : MonoSingleton<GameMainLoop>
     {
         cacheMonos = new List<IMono>();
         isCanNotDestory = true;
+
+        
     }
 
     public void PushMonoCache(IMono t)
     {
         cacheMonos.Add(t);
+      
     }
 
     private void Start()

@@ -98,6 +98,7 @@ public class ABResLoader : Singleton<ABResLoader>, IResLoader
 
     public T LoadAsset<T>(string abName, string resName) where T : UnityEngine.Object
     {
+        if (resName.Equals("") || abName.Equals("")) return default(T);
         LoadDependencies(abName);
         if (!abDic.ContainsKey(abName))
         {

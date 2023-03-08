@@ -24,10 +24,13 @@ namespace HalfStateFrame
         public TModel RegisterModel<TModel>(TModel model) where TModel : IModel;
 
         public void RegisterEvent<TParam>(string ev, Action<TParam> act);
+        public void RegisterEvent<TP1, TP2>(string ev, Action<TP1,TP2> act);
 
         public TSystem RegisterSystem<TSystem>(TSystem system) where TSystem : ISystem;
 
         public void EventTrigger<TParam>(string evn, TParam t) ;
+
+        public void EventTrigger<TP1, TP2>(string evn, TP1 t1,TP2 t2);
 
         public TModel GetModel<TModel>() where TModel : IModel;
 
@@ -97,6 +100,20 @@ namespace HalfStateFrame
             Debug.Log($"RegisterEvent:{ev}");
         }
 
+        public void RegisterEvent<TP1, TP2>(string evn, Action<TP1, TP2> act)
+        {
+            if (events.TryGetValue(evn, out var val))
+            {
+                (val as EventItem<TP1,TP2>).RegisterEvent(act);
+                Debug.Log($"RegisterAct");
+                return;
+            }
+            EventItem<TP1,TP2> ev = new EventItem<TP1, TP2>();
+            ev.RegisterEvent(act);
+            events.Add(evn, ev);
+            Debug.Log($"RegisterEvent:{ev}");
+        }
+
         public void EventTrigger<TParam>(string evn,TParam t) 
         {
             if (events.TryGetValue(evn, out var eventItem))
@@ -106,7 +123,14 @@ namespace HalfStateFrame
             }
 
         }
-
+        public void EventTrigger<TP1, TP2>(string evn, TP1 t1, TP2 t2)
+        {
+            if (events.TryGetValue(evn, out var eventItem))
+            {
+                (eventItem as EventItem<TP1,TP2>).Trigger(t1,t2);
+                return;
+            }
+        }
         public TSystem RegisterSystem<TSystem>(TSystem system) where TSystem : ISystem
         {
             Type type = system.GetType();
@@ -160,5 +184,7 @@ namespace HalfStateFrame
             }
             return mono;
         }
+
+    
     }
 }
