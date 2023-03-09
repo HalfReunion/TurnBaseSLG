@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 public class TeamSelection : UIBase
 {
@@ -10,7 +11,8 @@ public class TeamSelection : UIBase
     private int idx;
     protected override void OnInit() { 
         charIcon = transform.Find("CharIcon").GetComponent<Image>();
-        charName = transform.Find("CharName").GetComponent<TMP_Text>(); 
+        charName = transform.Find("CharName").GetComponent<TMP_Text>();
+       
     }  
 
     public void SetData(PartyViewModel.CharacterInfoData ch) {

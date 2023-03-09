@@ -9,11 +9,15 @@ public class TeamCustomSystem : SystemBase
     /// <summary>
     /// 当前选择的队伍
     /// </summary>
-    private List<CharacterInfoData> currentCustomTeam;
+    private Dictionary<int, List<CharacterInfoData>> allCustomTeams;
+
+    private int currentTeamID;
 
     protected override void OnInit()
     {
         Debug.Log("初始化TeamCustomSystem");
+        currentTeamID = 0;
+        allCustomTeams = new Dictionary<int, List<CharacterInfoData>>();
 
         PartyViewModel viewModel = new PartyViewModel();
         PartyTeamCustomModel partyModel = new PartyTeamCustomModel();
@@ -28,10 +32,14 @@ public class TeamCustomSystem : SystemBase
 
     private void DataInit()
     {
-        currentCustomTeam = Current.GetModel<PartyTeamCustomModel>().GetValue[0];
+        if (!allCustomTeams.ContainsKey(0))
+        {
+            List<CharacterInfoData> list = GetCustomCharacterInfoDatasByTeamID(0);
+            allCustomTeams.Add(0, list);
+        }
     }
 
-    //写入文件，使用lastIdx
+   
     private void SaveToTeamCustom(int nextIdx, int lastIdx)
     {
         if (lastIdx == -1) return;
@@ -44,14 +52,38 @@ public class TeamCustomSystem : SystemBase
     /// <param name="idx"></param>
     public void TriggerToggleEvent(int idx)
     {
-        currentCustomTeam = Current.GetModel<PartyTeamCustomModel>().GetValue[idx];
-        Current.EventTrigger("ChangeOneRenderChar", idx, RenderChangeType.All);
-        for (int i = 0; i < currentCustomTeam.Count; i++)
+        currentTeamID = idx;
+        if (!allCustomTeams.ContainsKey(idx))
         {
+            List<CharacterInfoData> temp = GetCustomCharacterInfoDatasByTeamID(idx);
+            allCustomTeams.Add(idx, temp);
+        }
+
+        Current.EventTrigger("ChangeOneRenderChar", idx, RenderChangeType.All);
+        for (int i = 0; i < allCustomTeams[idx].Count; i++)
+        {
+            if (allCustomTeams[idx][i] == null) continue;
+
             Current.EventTrigger("CharWithCharMsgChanged",
-                currentCustomTeam[i]
+                allCustomTeams[idx][i]
                 , i);
         }
+    }
+
+    public List<CharacterInfoData> GetCurrentTeam(int idx)
+    {
+        return allCustomTeams[idx];
+    }
+
+    private List<CharacterInfoData> GetCustomCharacterInfoDatasByTeamID(int idx)
+    {
+        List<int> customTeamIDs = Current.GetModel<PartyTeamCustomModel>().GetValue[idx];
+        List<CharacterInfoData> customList = new List<CharacterInfoData>();
+        for (int i = 0; i < customTeamIDs.Count; i++)
+        {
+            customList.Add(Current.GetModel<PartyViewModel>().GetCharByID(customTeamIDs[i]));
+        }
+        return customList;
     }
 
     /// <summary>
@@ -64,7 +96,7 @@ public class TeamCustomSystem : SystemBase
 
     public Dictionary<int, List<CharacterInfoData>> GetCustomTeamData()
     {
-        return Current.GetModel<PartyTeamCustomModel>().GetValue;
+        return allCustomTeams;
     }
 
     public List<RenderTexture> GetRenderTextures()
@@ -72,32 +104,40 @@ public class TeamCustomSystem : SystemBase
         return Current.GetModel<UI3DCharacterData>().GetValue;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="idx"> 参数是人物id</param>
     public void AddCharInTeam(int idx)
     {
         //3种情况：1：啥都没有 2：有，但是需要扩展槽位 3：有，很多空位是null
-        if (currentCustomTeam == null)
+        if (allCustomTeams == null)
         {
             Debug.Log("CustomTeam Is Null");
             return;
         }
+
+        Debug.Log($"Put character in {idx}");
+        List<CharacterInfoData> customTeam = allCustomTeams[currentTeamID];
+
         Debug.Log($"AddCharacter:{idx}");
 
-        int slotIdx = currentCustomTeam.IndexOf(null);
+        int slotIdx = customTeam.IndexOf(null);
 
-        if (slotIdx == -1 && currentCustomTeam.Count >= 4) return;
+        if (slotIdx == -1 && customTeam.Count >= 4) return;
         CharacterInfoData charInfo = Current.GetModel<PartyViewModel>().GetValue[idx];
 
-        bool existsChar = currentCustomTeam.Count(x => { if (x != null) { return x.Name.Equals(charInfo.Name); } return false; }) > 0;
+        bool existsChar = customTeam.Count(x => { if (x != null) { return x.Name.Equals(charInfo.Name); } return false; }) > 0;
         if (existsChar) return;
 
         if (slotIdx != -1)
         {
-            currentCustomTeam[slotIdx] = charInfo;
+            customTeam[slotIdx] = charInfo;
         }
         else
         {
-            currentCustomTeam.Add(charInfo);
-            slotIdx = currentCustomTeam.Count - 1;
+            customTeam.Add(charInfo);
+            slotIdx = customTeam.Count - 1;
         }
 
         //触发更换角色的效果
@@ -109,10 +149,12 @@ public class TeamCustomSystem : SystemBase
 
     public void DelCharInTeam(int idx)
     {
-        currentCustomTeam[idx] = null;
+        allCustomTeams[currentTeamID][idx] = null;
         Current.EventTrigger<CharacterInfoData, int>("CharWithCharMsgChanged",
             null
             , idx);
         Current.EventTrigger("ChangeOneRenderChar", idx, RenderChangeType.Del);
     }
+
+  
 }
