@@ -19,14 +19,18 @@ public class SerializeTool
 
     public static List<T> DeserializeToList<T>(string txt)
     {  
-        var data = JsonConvert.DeserializeObject<List<T>>(txt);
-
+        var data = JsonConvert.DeserializeObject<List<T>>(txt); 
         return data;
     }
 
     public static T Deserialize<T>(string txt)
     { 
-        var data = JsonConvert.DeserializeObject<T>(txt);
+        var data = JsonConvert.DeserializeObject<T>(txt); 
+        return data;
+    }
+    public static string SerializeToFile<T>(T t)
+    {
+        var data = JsonConvert.SerializeObject(t);
 
         return data;
     }

@@ -22,10 +22,11 @@ namespace HalfStateFrame
         public void OnExit(out IModel message);
 
         public TModel RegisterModel<TModel>(TModel model) where TModel : IModel;
-
+        public void RegisterEvent(string ev, Action act);
         public void RegisterEvent<TParam>(string ev, Action<TParam> act);
+         
         public void RegisterEvent<TP1, TP2>(string ev, Action<TP1,TP2> act);
-
+        
         public TSystem RegisterSystem<TSystem>(TSystem system) where TSystem : ISystem;
 
         public void EventTrigger<TParam>(string evn, TParam t) ;
@@ -185,6 +186,13 @@ namespace HalfStateFrame
             return mono;
         }
 
-    
+        public void RegisterEvent(string ev, Action act)
+        {
+            if (events.TryGetValue(ev, out var eventItem))
+            {
+                (eventItem as EventItem).Trigger();
+                return;
+            }
+        }
     }
 }

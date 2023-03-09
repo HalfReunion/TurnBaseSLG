@@ -25,8 +25,7 @@ public class TeamCustomSystem : SystemBase
         Current.RegisterModel(viewModel);
         Current.RegisterModel(partyModel);
         Current.RegisterModel(renderModel);
-        //Current.RegisterEvent<int, int>("OnTeamCustomChanged", OnTeamCustomToggleClick);
-        //Current.RegisterEvent<int, int>("OnTeamCustomChanged", SaveToTeamCustom);
+        Current.RegisterEvent("SaveToSetting", SaveToTeamCustom);
         DataInit();
     }
 
@@ -39,11 +38,10 @@ public class TeamCustomSystem : SystemBase
         }
     }
 
-   
-    private void SaveToTeamCustom(int nextIdx, int lastIdx)
+    
+    public void SaveToTeamCustom()
     {
-        if (lastIdx == -1) return;
-        PartyTeamCustomModel partyModel = Current.GetModel<PartyTeamCustomModel>();
+        Current.GetModel<PartyTeamCustomModel>().SaveToFile(allCustomTeams);
     }
 
     /// <summary>

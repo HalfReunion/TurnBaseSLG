@@ -10,7 +10,7 @@ namespace HalfStateFrame
        
     }
 
-    public  class EventItem<T> : IEventItem
+    public class EventItem<T> : IEventItem
     {
         Action<T> action ;
 
@@ -59,5 +59,28 @@ namespace HalfStateFrame
             action?.Invoke(p,p2);
         }
     }
+    public class EventItem : IEventItem
+    {
+        Action action;
 
+        public void RegisterEvent(Action onAction)
+        {
+            action += onAction;
+        }
+
+        public void UnRegisterEvent(Action onAction)
+        {
+            action -= onAction;
+        }
+
+        public void ClearEvent()
+        {
+            action = null;
+        }
+
+        public void Trigger()
+        {
+            action?.Invoke();
+        }
+    }
 }
