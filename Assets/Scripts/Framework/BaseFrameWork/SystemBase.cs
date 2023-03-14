@@ -8,7 +8,13 @@ namespace HalfStateFrame
 {
     public interface ISystem
     {
+        /// <summary>
+        /// 组件初始化，或者数据初始化
+        /// </summary>
         public void Init();
+
+        public void RenderInit();
+
     }
 
     public abstract class SystemBase : ISystem
@@ -28,6 +34,10 @@ namespace HalfStateFrame
         protected IState Current {
             get { return GameMainLoop.Instance.CurrentState; } 
     }
+        /// <summary>
+        /// 渲染初始化
+        /// </summary>
+        public virtual void RenderInit() { }
 }
 
 }

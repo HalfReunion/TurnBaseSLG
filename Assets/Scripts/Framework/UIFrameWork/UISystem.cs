@@ -2,14 +2,11 @@
 using System;
 using System.Collections.Generic; 
 using UnityEngine;
-using HalfStateFrame; 
-using Newtonsoft.Json;
-using Unity.VisualScripting;
- 
-using Cysharp.Threading.Tasks;
+using HalfStateFrame;    
 using System.Linq;
 
-using IState = HalfStateFrame.IState;
+using IState = HalfStateFrame.IState; 
+
 public abstract class UISystem: ISystem
 {
     protected IState Current
@@ -18,6 +15,8 @@ public abstract class UISystem: ISystem
     }
     Dictionary<Type,GameObject> objDict = new Dictionary<Type, GameObject>();
     Dictionary<Type, UIBase> uiDict = new Dictionary<Type, UIBase>();
+    protected Transform root;
+
 
     private static TextAsset jsonTxt;
 
@@ -48,13 +47,18 @@ public abstract class UISystem: ISystem
 
     public UIBase OpenUI<T>()
     {
-        if (uiDict.TryGetValue(typeof(T), out var uiBase))
+        if (root == null)
         {
-            UIBase ui = uiBase.Show();
-
-            objDict[typeof(T)] = ui.gameObject;
-            uiDict[typeof(T)] = ui;
+            root = GameObject.FindGameObjectWithTag("MainCanvas").transform;
+        } 
+        if (uiDict.TryGetValue(typeof(T), out var uiBase))
+        { 
+            Transform rootTr = root.Find(uiBase.UILevel.ToString());
+            UIBase ui = GameObject.Instantiate(uiBase, rootTr); 
             ui.Init(this);
+            ui.Show();
+            objDict[typeof(T)] = ui.gameObject;
+            uiDict[typeof(T)] = ui; 
             return ui;
         }
         return null;
@@ -114,5 +118,7 @@ public abstract class UISystem: ISystem
 
     }
 }
+
+    public virtual void RenderInit() { }
 }
 

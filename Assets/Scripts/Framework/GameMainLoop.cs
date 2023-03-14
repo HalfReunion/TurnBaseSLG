@@ -8,9 +8,7 @@ public class GameMainLoop : MonoSingleton<GameMainLoop>
     private IState m_CurrentState;
 
     private Dictionary<Type, IState> m_States;
-
-  
-
+     
     public IState CurrentState => m_CurrentState;
 
     public override void OnAwake()
@@ -38,8 +36,6 @@ public class GameMainLoop : MonoSingleton<GameMainLoop>
     {
         m_CurrentState = state;
         m_CurrentState.OnEnter(null);
-
-       
     }
 
     public void ChangeState(IState state)

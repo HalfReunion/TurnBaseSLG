@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Json;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public enum UI_Status
@@ -36,30 +37,30 @@ public interface IUIBase
 
 
 public abstract class UIBase : MonoBehaviour, IUIBase
-{
-
+{ 
     public virtual string UIName { get { return null; } }
 
-    public UI_Status UIState => m_Status;
-
     public UI_Level UILevel { get => m_Level; set => m_Level = value; }
-
-    protected UI_Status m_Status = UI_Status.Close;
     protected UI_Level m_Level;
+
+
+    public UI_Status UIState  { get => m_Status; set => m_Status = value; }
+    protected UI_Status m_Status = UI_Status.Close;
+   
 
 
     protected UISystem uiSystem;
 
-    protected Transform root;
+  
 
-    public void Awake()
+    private void Start()
     {
         OnInit();
     }
-
     public void Init(UISystem uiSystem)
-    {
+    { 
         if (this.uiSystem != null) { return; }
+        Debug.Log("Init System");
         this.uiSystem = uiSystem;
     }
 
@@ -78,23 +79,13 @@ public abstract class UIBase : MonoBehaviour, IUIBase
 
     public virtual UIBase Show()
     {
-
-        if (root == null)
-        {
-            root = GameObject.FindGameObjectWithTag("MainCanvas").transform;
+        m_Status = UI_Status.Open;
+        if (gameObject.activeSelf != false) { 
+            gameObject.SetActive(true);
         }
-        if (m_Status == UI_Status.Close)
-        {
-            Transform rootTr = root.Find(m_Level.ToString());
-            m_Status = UI_Status.Open;
-            UIBase obj = Instantiate(this, rootTr);
-            return obj;
-        }
-        //if (layer != -1) gameObject.transform.SetSiblingIndex(layer);
-        if (gameObject.activeSelf == false) gameObject.SetActive(true);
-
         return this;
     }
 
+    
 
 }

@@ -1,14 +1,8 @@
 ﻿using HalfStateFrame;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 
 public class MainMenuState : StateBase
 {
+    private bool isRenderInit;
 
     public override void OnEnter(IModel message = null)
     {
@@ -16,19 +10,27 @@ public class MainMenuState : StateBase
         {
             RegisterModel(message);
         }
-        RegisterSystem(new TeamCustomSystem()); 
+        isRenderInit = false;
+        RegisterSystem(new TeamCustomSystem());
         RegisterSystem(new TeamMenuUISystem()).OpenUI<TeamCustomUI>();
         RegisterMono(new UIChar3DRender().GetAndIns());
     }
 
     public override void OnExit(out IModel message)
     {
-        message= null;
+        message = null;
     }
 
     public override void OnUpdate(float time)
     {
-        
+        //渲染初始化
+        if (!isRenderInit)
+        {
+            foreach (var i in RenderInitSeq)
+            {
+                i.RenderInit();
+                isRenderInit = true;
+            }
+        }
     }
 }
- 

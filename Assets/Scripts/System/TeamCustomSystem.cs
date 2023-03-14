@@ -29,16 +29,20 @@ public class TeamCustomSystem : SystemBase
         DataInit();
     }
 
+    //HACKER 处理初始化 初始化File里拿过来的数据
     private void DataInit()
     {
-        if (!allCustomTeams.ContainsKey(0))
-        {
-            List<CharacterInfoData> list = GetCustomCharacterInfoDatasByTeamID(0);
-            allCustomTeams.Add(0, list);
+        for (int i = 0; i < 3; i++) { 
+            List<CharacterInfoData> temp = GetCustomCharacterInfoDatasByTeamID(i);
+            allCustomTeams.Add(i, temp);
         }
     }
 
-    
+    public override void RenderInit()
+    {
+        TriggerToggleEvent(0);
+    }
+
     public void SaveToTeamCustom()
     {
         Current.GetModel<PartyTeamCustomModel>().SaveToFile(allCustomTeams);
@@ -51,11 +55,11 @@ public class TeamCustomSystem : SystemBase
     public void TriggerToggleEvent(int idx)
     {
         currentTeamID = idx;
-        if (!allCustomTeams.ContainsKey(idx))
-        {
-            List<CharacterInfoData> temp = GetCustomCharacterInfoDatasByTeamID(idx);
-            allCustomTeams.Add(idx, temp);
-        }
+        //if (!allCustomTeams.ContainsKey(idx))
+        //{
+        //    List<CharacterInfoData> temp = GetCustomCharacterInfoDatasByTeamID(idx);
+        //    allCustomTeams.Add(idx, temp);
+        //}
 
         Current.EventTrigger("ChangeOneRenderChar", idx, RenderChangeType.All);
         for (int i = 0; i < allCustomTeams[idx].Count; i++)
@@ -79,6 +83,9 @@ public class TeamCustomSystem : SystemBase
         List<CharacterInfoData> customList = new List<CharacterInfoData>();
         for (int i = 0; i < customTeamIDs.Count; i++)
         {
+            int index = customTeamIDs[i];
+            if (index == -1)
+            { customList.Add(null); continue; }
             customList.Add(Current.GetModel<PartyViewModel>().GetCharByID(customTeamIDs[i]));
         }
         return customList;
@@ -103,7 +110,7 @@ public class TeamCustomSystem : SystemBase
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="idx"> 参数是人物id</param>
     public void AddCharInTeam(int idx)
@@ -153,6 +160,4 @@ public class TeamCustomSystem : SystemBase
             , idx);
         Current.EventTrigger("ChangeOneRenderChar", idx, RenderChangeType.Del);
     }
-
-  
 }

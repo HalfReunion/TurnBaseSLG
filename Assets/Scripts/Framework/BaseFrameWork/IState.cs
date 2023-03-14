@@ -49,15 +49,11 @@ namespace HalfStateFrame
         private Dictionary<Type, IModel> models = new Dictionary<Type, IModel>();
         private Dictionary<Type, IMono> monos = new Dictionary<Type, IMono>();
 
+        protected LinkedList<ISystem> RenderInitSeq = new LinkedList<ISystem>();
+
         protected IState lastState;
 
-        public void Init()
-        {
-            foreach (var item in systems)
-            {
-                item.Value.Init();
-            }
-        }
+        
 
         public abstract void OnUpdate(float time);
 
@@ -139,6 +135,8 @@ namespace HalfStateFrame
             {
                 systems.Add(type, system);
                 system.Init();
+                
+                RenderInitSeq.AddLast(system);
                 Debug.Log($"RegisterSystem:{type.Name}");
             }
             return system;
