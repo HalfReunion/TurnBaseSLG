@@ -69,9 +69,9 @@ namespace HalfStateFrame
                 foreach (var i in RenderInitSeq)
                 {
                     i.RenderInit();
-                    isRenderInit = true;
-                    RenderInitSeq.Clear();
+                    isRenderInit = true; 
                 }
+                RenderInitSeq.Clear();
             }
         }
 
