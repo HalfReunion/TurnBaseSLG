@@ -1,9 +1,7 @@
 ﻿using HalfStateFrame;
 
 public class MainMenuState : StateBase
-{
-    private bool isRenderInit;
-
+{ 
     public override void OnEnter(IModel message = null)
     {
         if (message != null)
@@ -19,18 +17,6 @@ public class MainMenuState : StateBase
     public override void OnExit(out IModel message)
     {
         message = null;
-    }
-
-    public override void OnUpdate(float time)
-    {
-        //渲染初始化
-        if (!isRenderInit)
-        {
-            foreach (var i in RenderInitSeq)
-            {
-                i.RenderInit();
-                isRenderInit = true;
-            }
-        }
-    }
+    } 
+   
 }

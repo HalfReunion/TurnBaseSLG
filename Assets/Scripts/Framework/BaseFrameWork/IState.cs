@@ -53,13 +53,27 @@ namespace HalfStateFrame
 
         protected IState lastState;
 
-        
+        protected bool isRenderInit = false;
 
-        public abstract void OnUpdate(float time);
+        public virtual void OnUpdate(float time) {
+            RenderInit();
+        }
 
         public abstract void OnEnter(IModel message);
 
         public abstract void OnExit(out IModel message);
+
+        private void RenderInit() {
+            if (!isRenderInit)
+            {
+                foreach (var i in RenderInitSeq)
+                {
+                    i.RenderInit();
+                    isRenderInit = true;
+                    RenderInitSeq.Clear();
+                }
+            }
+        }
 
         public void SetLastState(IState lastState)
         {
