@@ -1,9 +1,7 @@
-﻿using System;
+﻿using HalfStateFrame;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HalfStateFrame;
+
 public class BuffSystem : SystemBase
 {
     public List<BuffData> buffDatas;
@@ -14,7 +12,7 @@ public class BuffSystem : SystemBase
     protected override void OnInit()
     {
         buffDatas = new List<BuffData>();
-        buffUnitList = new Dictionary<Unit, List<BaseBuff>>(); 
+        buffUnitList = new Dictionary<Unit, List<BaseBuff>>();
     }
 
     public void AddBuff<T>(Unit unit, T buff) where T : BaseBuff
@@ -38,6 +36,4 @@ public class BuffSystem : SystemBase
         buff.Execute(unit.HealthSystem, EventArgs.Empty);
         //BroadBuffChangedUI(this, buffUnitList);
     }
-
 }
- 

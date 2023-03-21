@@ -16,7 +16,7 @@ public class GameMainLoop : MonoSingleton<GameMainLoop>
         isCanNotDestory = true; 
     }
 
-  
+    
     private void Start()
     {
         Debug.Log("Start");

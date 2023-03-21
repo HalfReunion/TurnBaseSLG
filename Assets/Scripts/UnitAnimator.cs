@@ -67,11 +67,11 @@ public class UnitAnimator : MonoBehaviour
     private void createBullet(ShootAction.OnShootEventArgs args)
     { 
         Transform t = GameObject.Instantiate(bulletProjectTileTran, shootPointTran.position, Quaternion.identity);
-        BulletProjectTile bulletProjectTile = t.GetComponent<BulletProjectTile>();
+        //BulletProjectTile bulletProjectTile = t.GetComponent<BulletProjectTile>();
         Vector3 shootTargetPos = args.TargetUnit.GetWorldPosition();
         //提升一个枪口的Y
         shootTargetPos.y += t.position.y;
-        bulletProjectTile.Setup(shootTargetPos);
+        //bulletProjectTile.Setup(shootTargetPos);
     }
 
 

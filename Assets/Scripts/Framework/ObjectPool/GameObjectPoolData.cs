@@ -1,23 +1,87 @@
-﻿ using System.Collections.Generic;
-using UnityEngine; 
+﻿using System.Collections.Generic;
+using UnityEngine;
 
-public class GameObjectPoolData
+public interface IGameObjectPoolData
+{
+    public T Get<T>();
+    public GameObject Get();
+    public void Push(GameObject obj);
+
+    public void Init(Transform rootObj, GameObject m_prefab);
+
+    public void Init<T>(Transform rootObj) where T : Component;
+
+    public void Clear();
+}
+
+public class GameObjectPoolData : IGameObjectPoolData
 {
     private Queue<GameObject> poolQueue;
-    private int capacity = -1;
+  
     private Transform rootObj;
-    
-    public  GameObjectPoolData(int capcity=-1)
+    private GameObject m_prefab;
+
+    public GameObjectPoolData(int capcity = -1)
     {
-        if (capacity != -1) {
-            poolQueue = new Queue<GameObject>(capacity);
+        if (capcity != -1)
+        {
+            poolQueue = new Queue<GameObject>(capcity);
             return;
         }
         poolQueue = new Queue<GameObject>();
     }
+     
 
-    public void Init(Transform rootObj) {
+    public T Get<T>()  
+    { 
+        if (!poolQueue.TryDequeue(out GameObject obj))
+        {
+            obj = GameObject.Instantiate(m_prefab); 
+        }
+        obj.name = m_prefab.name;
+        obj.transform.SetParent(rootObj);
+        obj.SetActive(true);
+        return obj.GetComponent<T>();
+    }
+
+    public GameObject Get()
+    {
+        if (!poolQueue.TryDequeue(out GameObject obj))
+        {
+            obj = GameObject.Instantiate(m_prefab);
+        }
+        obj.name = m_prefab.name;
+        obj.transform.SetParent(rootObj);
+        obj.SetActive(true);
+        return obj;
+    }
+
+    public void Init(Transform rootObj,GameObject m_prefab)
+    {
         this.rootObj = rootObj;
+        this.m_prefab = m_prefab;
+    }
+
+    public void Init<T>(Transform rootObj) where T:Component
+    {
+        this.rootObj = rootObj;
+        GameObject game = new GameObject();
+        game.AddComponent<T>();
+        game.name = typeof(T).Name; 
+        this.m_prefab = game;
+        Push(game);
+    }
+
+    public void Push(GameObject obj)
+    {
+        obj.SetActive(false); 
+        obj.transform.SetParent(rootObj);
+        poolQueue.Enqueue(obj); 
+    }
+
+    public void Clear() {
+        foreach (var i in rootObj) {
+            GameObject.Destroy(i);
+        }
     }
 }
-
