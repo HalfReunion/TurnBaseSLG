@@ -15,7 +15,7 @@ public class TeamSelection : UIBase
         charName = transform.Find("CharName").GetComponent<TMP_Text>();
     }
 
-    public void SetData(PartyViewModel.CharacterInfoData ch) {
+    public void SetData(CharacterInfoData ch) {
         charIcon.sprite = ch.Icon;
         charName.text = ch.Name;
     }

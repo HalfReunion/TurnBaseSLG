@@ -80,8 +80,12 @@ public class GameObjectPoolData : IGameObjectPoolData
     }
 
     public void Clear() {
-        foreach (var i in rootObj) {
-            GameObject.Destroy(i);
+        m_prefab = null;
+        for (int i = 0; i < rootObj.childCount; i++)
+        {
+            GameObject childGameObject = rootObj.GetChild(i).gameObject;
+            GameObject.Destroy(childGameObject);
         }
+        
     }
 }

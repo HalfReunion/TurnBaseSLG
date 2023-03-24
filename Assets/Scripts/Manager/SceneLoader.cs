@@ -3,23 +3,13 @@ using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class SceneLoader : MonoBehaviour
+public class SceneLoader : MonoSingleton<SceneLoader>
 {
     private const string TEAMSCENE = "TeamCustom";
 
     private static SceneLoader instance;
     public static SceneLoader Instance => instance;
-
-    private void Awake()
-    {
-        if (instance != null)
-        {
-            Destroy(gameObject);
-        }
-        instance = this;
-        DontDestroyOnLoad(gameObject);
-    }
-
+     
     private async UniTask ChangeScene(string name, Action onStart, Action<AsyncOperation> onComplete)
     {
         AsyncOperation asy = SceneManager.LoadSceneAsync(name);

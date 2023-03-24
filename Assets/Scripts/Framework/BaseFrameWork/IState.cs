@@ -21,13 +21,24 @@ namespace HalfStateFrame
 
         public void OnExit(out IModel message);
 
+        public void UnRegisterModel<TModel>() where TModel : IModel;
+
         public TModel RegisterModel<TModel>(TModel model) where TModel : IModel;
+           
+        public void UnRegisterEvent(string ev, Action act);
+
         public void RegisterEvent(string ev, Action act);
         public void RegisterEvent<TParam>(string ev, Action<TParam> act);
-         
+
+        public void UnRegisterEvent<TParam>(string ev, Action<TParam> act);
+
         public void RegisterEvent<TP1, TP2>(string ev, Action<TP1,TP2> act);
-        
+
+        public void UnRegisterEvent<TP1, TP2>(string ev, Action<TP1, TP2> act);
+
         public TSystem RegisterSystem<TSystem>(TSystem system) where TSystem : ISystem;
+
+        public void UnRegisterSystem<TSystem>() where TSystem : ISystem;
 
         public void EventTrigger<TParam>(string evn, TParam t) ;
 
@@ -40,6 +51,8 @@ namespace HalfStateFrame
         public TMono GetMono<TMono>() where TMono : IMono;
 
         public TMono RegisterMono<TMono>(TMono mono) where TMono : IMono;
+
+        public void UnRegisterMono<TMono>() where TMono : IMono;
     }
 
     public abstract class StateBase : IState
@@ -198,13 +211,73 @@ namespace HalfStateFrame
             return mono;
         }
 
-        public void RegisterEvent(string ev, Action act)
+       
+
+        public void UnRegisterModel<TModel>() where TModel : IModel
         {
-            if (events.TryGetValue(ev, out var eventItem))
+            Type type = typeof(TModel);
+            if (models.ContainsKey(type))
+            { 
+                models.Remove(type);
+                Debug.Log($"UnRegisterModel:{type.Name}");
+            } 
+        }
+
+        public void UnRegisterEvent(string ev, Action act)
+        {
+            if (events.ContainsKey(ev))
             {
-                (eventItem as EventItem).Trigger();
+                (events[ev] as EventItem).UnRegisterEvent(act); 
+            }
+        }
+
+        public void UnRegisterEvent<TParam>(string ev, Action<TParam> act)
+        {
+            if (events.ContainsKey(ev))
+            {
+                (events[ev] as EventItem<TParam>).UnRegisterEvent(act);
+            }
+        }
+
+        public void UnRegisterEvent<TP1, TP2>(string ev, Action<TP1, TP2> act)
+        {
+            if (events.ContainsKey(ev))
+            {
+                (events[ev] as EventItem<TP1, TP2>).UnRegisterEvent(act);
+            }
+        }
+
+        public void UnRegisterSystem<TSystem>() where TSystem : ISystem
+        {
+            Type type = typeof(TSystem);
+            if (!systems.ContainsKey(type))
+            {
+                systems.Remove(type);  
+            } 
+        }
+
+        public void UnRegisterMono<TMono>() where TMono : IMono
+        {
+            Type type = typeof(TMono);
+            if (!monos.ContainsKey(type))
+            { 
+                monos.Remove(type);
+                Debug.Log($"UnRegisterMono:{type.Name}");
+            }
+        }
+
+        public void RegisterEvent(string evn, Action act)
+        {
+            if (events.TryGetValue(evn, out var val))
+            {
+                (val as EventItem).RegisterEvent(act);
+                Debug.Log($"RegisterAct");
                 return;
             }
+            EventItem ev = new EventItem();
+            ev.RegisterEvent(act);
+            events.Add(evn, ev);
+            Debug.Log($"RegisterEvent:{ev}");
         }
     }
 }

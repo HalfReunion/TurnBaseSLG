@@ -41,6 +41,7 @@ public class TeamCustomSystem : SystemBase
     public override void RenderInit()
     {
         TriggerToggleEvent(0);
+        SoundManager.Instance.PlayBackground("1st PV Animation Theme");
     }
 
     public void SaveToTeamCustom()
@@ -77,6 +78,9 @@ public class TeamCustomSystem : SystemBase
         return allCustomTeams[idx];
     }
 
+    public void ChangeScene() { 
+        
+    }
     private List<CharacterInfoData> GetCustomCharacterInfoDatasByTeamID(int idx)
     {
         List<int> customTeamIDs = Current.GetModel<PartyTeamCustomModel>().GetValue[idx];

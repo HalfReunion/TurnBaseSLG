@@ -20,6 +20,9 @@ public class GameMainLoop : MonoSingleton<GameMainLoop>
     private void Start()
     {
         Debug.Log("Start");
+        SoundManager.Instance.Init();
+        SettingInfo.Init();
+
         m_States = new Dictionary<Type, IState>();
         Init();
     }
