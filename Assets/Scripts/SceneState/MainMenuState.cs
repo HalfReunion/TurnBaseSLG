@@ -1,7 +1,7 @@
 ﻿using HalfStateFrame;
 
 public class MainMenuState : StateBase
-{ 
+{
     public override void OnEnter(IModel message = null)
     {
         if (message != null)
@@ -12,8 +12,8 @@ public class MainMenuState : StateBase
         RegisterModel(new SceneInfoModel("MainMenu"));
         RegisterSystem(new TeamCustomSystem());
         RegisterSystem(new TeamMenuUISystem()).OpenUI<TeamCustomUI>();
-        RegisterMono(new UIChar3DRender().GetAndIns()); 
-       
+        RegisterSystem(new MapSelectUISystem()).OpenUI<MapSelectUI>();
+        RegisterMono(new UIChar3DRender().GetAndIns());
     }
 
     public override void OnExit(out IModel message)
@@ -22,7 +22,7 @@ public class MainMenuState : StateBase
         UnRegisterModel<SceneInfoModel>();
         UnRegisterSystem<TeamCustomSystem>();
         UnRegisterSystem<TeamMenuUISystem>();
+        UnRegisterSystem<MapSelectUISystem>();
         UnRegisterMono<UIChar3DRender>();
-    } 
-   
+    }
 }

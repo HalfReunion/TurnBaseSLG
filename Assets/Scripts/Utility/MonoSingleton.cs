@@ -1,16 +1,10 @@
-﻿using Cysharp.Threading.Tasks.Triggers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
-public abstract class MonoSingleton<T> : MonoBehaviour where T: MonoSingleton<T>
+public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoSingleton<T>
 {
-
     public static T instance;
-    public static T Instance { get { return instance; } }
+    public static T Instance
+    { get { return instance; } }
 
     protected bool isCanNotDestory;
 
@@ -18,20 +12,18 @@ public abstract class MonoSingleton<T> : MonoBehaviour where T: MonoSingleton<T>
     {
         if (instance != null)
         {
-           Destroy(gameObject);
+            Destroy(gameObject);
         }
         instance = this as T;
-        
+
         OnAwake();
-        if (isCanNotDestory) {
+        if (isCanNotDestory)
+        {
             DontDestroyOnLoad(gameObject);
         }
-
-        
-        
     }
 
-    public virtual void OnAwake() { 
+    public virtual void OnAwake()
+    {
     }
 }
-

@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 namespace HalfStateFrame
 {
     public interface IEventItem
     {
-       
     }
 
     public class EventItem<T> : IEventItem
     {
-        Action<T> action ;
+        private Action<T> action;
 
         public void RegisterEvent(Action<T> onAction)
         {
@@ -35,9 +31,9 @@ namespace HalfStateFrame
         }
     }
 
-    public class EventItem<T1,T2> : IEventItem
+    public class EventItem<T1, T2> : IEventItem
     {
-        Action<T1,T2> action;
+        private Action<T1, T2> action;
 
         public void RegisterEvent(Action<T1, T2> onAction)
         {
@@ -54,14 +50,15 @@ namespace HalfStateFrame
             action = null;
         }
 
-        public void Trigger(T1 p,T2 p2)
+        public void Trigger(T1 p, T2 p2)
         {
-            action?.Invoke(p,p2);
+            action?.Invoke(p, p2);
         }
     }
+
     public class EventItem : IEventItem
     {
-        Action action;
+        private Action action;
 
         public void RegisterEvent(Action onAction)
         {

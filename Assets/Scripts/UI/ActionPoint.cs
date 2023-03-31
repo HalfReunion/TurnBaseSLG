@@ -1,12 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Image))]
 public class ActionPoint : MonoBehaviour
-{ 
+{
     private Image actionPoints;
+
     public void Awake()
     {
         transform.TryGetComponent(out actionPoints);
@@ -21,5 +20,4 @@ public class ActionPoint : MonoBehaviour
     {
         actionPoints.color = Color.gray;
     }
-
 }

@@ -1,18 +1,15 @@
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
-using UnityEngine.UIElements;
 
 public class UnitAnimator : MonoBehaviour
 {
-    [SerializeField] Animator animator;
-    [SerializeField] Transform bulletProjectTileTran;
-    [SerializeField] Transform shootPointTran;
-    [SerializeField] ShootAnimaInfo shootInfo;
+    [SerializeField] private Animator animator;
+    [SerializeField] private Transform bulletProjectTileTran;
+    [SerializeField] private Transform shootPointTran;
+    [SerializeField] private ShootAnimaInfo shootInfo;
+
     private void Awake()
     {
         if (TryGetComponent<MoveAction>(out MoveAction moveAction))
@@ -24,19 +21,21 @@ public class UnitAnimator : MonoBehaviour
         {
             shootAction.OnShootStart += ShootAction_OnShootStart;
             shootAction.OnShooting += ShootAction_OnShoot;
-            shootAction.OnShootEnd += ShootAction_OnShootEnd; 
+            shootAction.OnShootEnd += ShootAction_OnShootEnd;
         }
 
         var updateVisual = GetComponentInChildren<UnitSelectedVisual>();
-        if (updateVisual!=null) {
+        if (updateVisual != null)
+        {
             updateVisual.UnitSelected += UpdateSelected_SelectedAnima;
         }
     }
 
-    private void UpdateSelected_SelectedAnima(bool isSet) {
+    private void UpdateSelected_SelectedAnima(bool isSet)
+    {
         animator.SetBool(Animator.StringToHash("SelectedTrigger"), isSet);
-
     }
+
     private void MoveAction_OnStartMoving(object sender, EventArgs e)
     {
         animator.SetBool(Animator.StringToHash("IsWalking"), true);
@@ -56,16 +55,14 @@ public class UnitAnimator : MonoBehaviour
     {
         animator.SetTrigger("Attacking");
         ShootAction.OnShootEventArgs args = (ShootAction.OnShootEventArgs)e;
-        
+
         await TakeShootAnima(args);
         args.OnDamage(args.Damage);
         args.MakeBuff(args.BuffList);
     }
 
-  
-
     private void createBullet(ShootAction.OnShootEventArgs args)
-    { 
+    {
         Transform t = GameObject.Instantiate(bulletProjectTileTran, shootPointTran.position, Quaternion.identity);
         //BulletProjectTile bulletProjectTile = t.GetComponent<BulletProjectTile>();
         Vector3 shootTargetPos = args.TargetUnit.GetWorldPosition();
@@ -74,26 +71,23 @@ public class UnitAnimator : MonoBehaviour
         //bulletProjectTile.Setup(shootTargetPos);
     }
 
-
-
     private void ShootAction_OnShootEnd(object sender, EventArgs e)
     {
         animator.SetBool("AttackActionTrigger", false);
     }
-     
 
     private async UniTask TakeShootAnima(ShootAction.OnShootEventArgs args)
-    { 
+    {
         List<int> frames = shootInfo.keys;
         int idx = -1;
-      
+
         while (true)
-        { 
+        {
             var info = animator.GetCurrentAnimatorStateInfo(0);
-          
+
             if (info.IsName("Attack_Ing"))
             {
-                for (int i = 0; i < frames.Count;i++)
+                for (int i = 0; i < frames.Count; i++)
                 {
                     while (true)
                     {
@@ -102,11 +96,11 @@ public class UnitAnimator : MonoBehaviour
                         float totalFrame = length / (1 / frameRate);
                         var currentTime = animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
                         int currentFrame = (int)(Mathf.Floor(totalFrame * currentTime) % totalFrame);
-                         
+
                         if (currentFrame >= frames[i])
                         {
                             idx = i;
-                           
+
                             createBullet(args);
                             break;
                         }
@@ -115,7 +109,7 @@ public class UnitAnimator : MonoBehaviour
                 }
             }
             if (idx == frames.Count - 1) return;
-            await UniTask.WaitForEndOfFrame(this); 
+            await UniTask.WaitForEndOfFrame(this);
         }
     }
 }

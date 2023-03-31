@@ -1,24 +1,23 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
 
 public class ActionPointsPanelUI : MonoBehaviour
 {
-    [SerializeField] ActionPoint actionPoints;
+    [SerializeField] private ActionPoint actionPoints;
 
-    List<ActionPoint> listPoints;
+    private List<ActionPoint> listPoints;
 
-    CanvasGroup canvasGroup;
+    private CanvasGroup canvasGroup;
 
-    bool isSelectedUnit = true;
+    private bool isSelectedUnit = true;
+
     private void Awake()
     {
         canvasGroup = GetComponent<CanvasGroup>();
     }
 
-    void Start()
+    private void Start()
     {
         listPoints = new List<ActionPoint>();
         UnitActionSystem.Instance.OnSelectedUnitChanged += OnTurnChanged;
@@ -27,9 +26,7 @@ public class ActionPointsPanelUI : MonoBehaviour
         //TurnSystem.Instance.OnTurnChanged += OnTurnChanged;
         EventDispatcher.Instance.SubScribe<object, EventArgs>(GameEventType.OnTurnChanged,
             OnTurnChanged);
-        
     }
-
 
     /// <summary>
     /// ActionPoint的初始化
@@ -84,9 +81,12 @@ public class ActionPointsPanelUI : MonoBehaviour
     /// 当前角色行动时的ActionPoint变动
     /// </summary>
     /// <param name="current"></param>
-    private void CurrentUpdateActionPoints(int current) {
-        for (int i = 0; i < listPoints.Count; i++) {
-            if (i > current - 1) {
+    private void CurrentUpdateActionPoints(int current)
+    {
+        for (int i = 0; i < listPoints.Count; i++)
+        {
+            if (i > current - 1)
+            {
                 listPoints[i].Spent();
                 continue;
             }
@@ -94,20 +94,20 @@ public class ActionPointsPanelUI : MonoBehaviour
         }
     }
 
-    public void OnTurnChanged(object sender,EventArgs e) {
+    public void OnTurnChanged(object sender, EventArgs e)
+    {
         Init();
         ShowOrHide();
     }
 
-    public void ShowOrHide() {
+    public void ShowOrHide()
+    {
         bool isShow = TurnSystem.Instance.IsPlayerTurn() && isSelectedUnit;
-        if (isShow) {
+        if (isShow)
+        {
             canvasGroup.alpha = 1;
             return;
         }
         canvasGroup.alpha = 0;
     }
-    
-
-
 }

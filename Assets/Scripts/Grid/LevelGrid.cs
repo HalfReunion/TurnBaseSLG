@@ -1,19 +1,16 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class LevelGrid : MonoBehaviour
 {
-  
     [SerializeField]
     private Transform gridDebugObj;
 
     [SerializeField]
     private Transform parent;
 
-    GridSystem gridSystem;
+    private GridSystem gridSystem;
 
     private static LevelGrid instance;
 
@@ -23,24 +20,24 @@ public class LevelGrid : MonoBehaviour
 
     public GridPos GetGridPosition(Vector3 worldPos) => gridSystem.GetGridPos(worldPos);
 
-    public Vector3 GetWorldPosition(GridPos gridPos) => gridSystem.GetWorldPos(gridPos.x,gridPos.y);
+    public Vector3 GetWorldPosition(GridPos gridPos) => gridSystem.GetWorldPos(gridPos.x, gridPos.y);
 
     /// <summary>
     /// 判断是否在棋盘内
     /// </summary>
     /// <param name="gridPos"></param>
     /// <returns></returns>
-    public bool IsVaildGridPos(GridPos gridPos) => gridSystem.IsVaildGridPos(gridPos); 
+    public bool IsVaildGridPos(GridPos gridPos) => gridSystem.IsVaildGridPos(gridPos);
 
     public int Width => gridSystem.Width;
     public int Height => gridSystem.Height;
+
     private void Awake()
     {
         instance = this;
-        gridSystem = new GridSystem(10,10,2f);
+        gridSystem = new GridSystem(10, 10, 2f);
         //测试：用于创建可视化的网格
-        gridSystem.CreateDebugObjects(gridDebugObj,parent);
-        
+        gridSystem.CreateDebugObjects(gridDebugObj, parent);
     }
 
     /// <summary>
@@ -64,7 +61,7 @@ public class LevelGrid : MonoBehaviour
     public List<Unit> GetUnitsByGridPosition(GridPos gridPos)
     {
         Grid grid = gridSystem.GetGridByGridPosition(gridPos);
-        return grid.GetUnitList() ;
+        return grid.GetUnitList();
     }
 
     /// <summary>
@@ -75,20 +72,21 @@ public class LevelGrid : MonoBehaviour
     public Unit GetUnitByGridPosition(GridPos gridPos)
     {
         Grid grid = gridSystem.GetGridByGridPosition(gridPos);
-        return grid.GetUnitFirst(); 
+        return grid.GetUnitFirst();
     }
 
     //在格子上移除角色
-    public void RemoveUnitByGridPosition(GridPos gridPos,Unit unit)
+    public void RemoveUnitByGridPosition(GridPos gridPos, Unit unit)
     {
         Grid grid = gridSystem.GetGridByGridPosition(gridPos);
         grid.RemoveUnit(unit);
     }
 
-    public void UnitMoveToGridPosition(Unit unit,GridPos from,GridPos to) {
-        RemoveUnitByGridPosition(from,unit);
-        AddUnitByGridPosition(to,unit);
-        OnAnyUnitMovedGridPosition?.Invoke(this, EventArgs.Empty); 
+    public void UnitMoveToGridPosition(Unit unit, GridPos from, GridPos to)
+    {
+        RemoveUnitByGridPosition(from, unit);
+        AddUnitByGridPosition(to, unit);
+        OnAnyUnitMovedGridPosition?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -96,7 +94,8 @@ public class LevelGrid : MonoBehaviour
     /// </summary>
     /// <param name="gridPos"></param>
     /// <returns></returns>
-    public bool IsUnitInGrid(GridPos gridPos) {
+    public bool IsUnitInGrid(GridPos gridPos)
+    {
         return GetUnitsByGridPosition(gridPos).Count > 0;
     }
 }

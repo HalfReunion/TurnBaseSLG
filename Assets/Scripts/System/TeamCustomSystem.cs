@@ -11,6 +11,10 @@ public class TeamCustomSystem : SystemBase
     /// </summary>
     private Dictionary<int, List<CharacterInfoData>> allCustomTeams;
 
+    private SwitchCustomAndMapAnima<List<GameObject>> switchAnima;
+
+    private Dictionary<string,UISystem> childUISystem = new Dictionary<string, UISystem>();
+         
     private int currentTeamID;
 
     protected override void OnInit()
@@ -22,15 +26,18 @@ public class TeamCustomSystem : SystemBase
         PartyViewModel viewModel = new PartyViewModel();
         PartyTeamCustomModel partyModel = new PartyTeamCustomModel();
         UI3DCharacterData renderModel = new UI3DCharacterData();
+        
         Current.RegisterModel(viewModel);
         Current.RegisterModel(partyModel);
         Current.RegisterModel(renderModel);
         Current.RegisterEvent("SaveToSetting", SaveToTeamCustom);
-        DataInit();
+         
+
+        TeamDataInit();
     }
 
     //HACKER 处理初始化 初始化File里拿过来的数据
-    private void DataInit()
+    private void TeamDataInit()
     {
         for (int i = 0; i < 3; i++) { 
             List<CharacterInfoData> temp = GetCustomCharacterInfoDatasByTeamID(i);
@@ -42,8 +49,36 @@ public class TeamCustomSystem : SystemBase
     {
         TriggerToggleEvent(0);
         SoundManager.Instance.PlayBackground("1st PV Animation Theme");
+        
+        InitSwitchAnima();
+    }
+    public void RegisterChildSystem(string name, UISystem uiSystem)
+    {
+        childUISystem.Add(name, uiSystem);
     }
 
+    private void InitSwitchAnima()
+    {
+        List<GameObject> io = new List<GameObject>();
+        io.Add(childUISystem["TeamMenuUI"].GetUI<TeamCustomUI>().gameObject);
+        io.Add(childUISystem["MapSelectUI"].GetUI<MapSelectUI>().gameObject);
+        switchAnima = new SwitchCustomAndMapAnima<List<GameObject>>(io); 
+    }
+
+    public void ExecuteSwitchToMap() {
+        switchAnima.Execute(InitMapSystemData);
+    }
+
+    #region MapSelectSystem Part
+    private void InitMapSystemData() { 
+        
+    }
+    #endregion
+
+
+
+
+    #region TeamSystem part
     public void SaveToTeamCustom()
     {
         Current.GetModel<PartyTeamCustomModel>().SaveToFile(allCustomTeams);
@@ -78,9 +113,6 @@ public class TeamCustomSystem : SystemBase
         return allCustomTeams[idx];
     }
 
-    public void ChangeScene() { 
-        
-    }
     private List<CharacterInfoData> GetCustomCharacterInfoDatasByTeamID(int idx)
     {
         List<int> customTeamIDs = Current.GetModel<PartyTeamCustomModel>().GetValue[idx];
@@ -165,3 +197,4 @@ public class TeamCustomSystem : SystemBase
         Current.EventTrigger("ChangeOneRenderChar", idx, RenderChangeType.Del);
     }
 }
+#endregion

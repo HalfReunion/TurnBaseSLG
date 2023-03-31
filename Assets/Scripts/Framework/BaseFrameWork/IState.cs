@@ -24,15 +24,16 @@ namespace HalfStateFrame
         public void UnRegisterModel<TModel>() where TModel : IModel;
 
         public TModel RegisterModel<TModel>(TModel model) where TModel : IModel;
-           
+
         public void UnRegisterEvent(string ev, Action act);
 
         public void RegisterEvent(string ev, Action act);
+
         public void RegisterEvent<TParam>(string ev, Action<TParam> act);
 
         public void UnRegisterEvent<TParam>(string ev, Action<TParam> act);
 
-        public void RegisterEvent<TP1, TP2>(string ev, Action<TP1,TP2> act);
+        public void RegisterEvent<TP1, TP2>(string ev, Action<TP1, TP2> act);
 
         public void UnRegisterEvent<TP1, TP2>(string ev, Action<TP1, TP2> act);
 
@@ -40,9 +41,9 @@ namespace HalfStateFrame
 
         public void UnRegisterSystem<TSystem>() where TSystem : ISystem;
 
-        public void EventTrigger<TParam>(string evn, TParam t) ;
+        public void EventTrigger<TParam>(string evn, TParam t);
 
-        public void EventTrigger<TP1, TP2>(string evn, TP1 t1,TP2 t2);
+        public void EventTrigger<TP1, TP2>(string evn, TP1 t1, TP2 t2);
 
         public TModel GetModel<TModel>() where TModel : IModel;
 
@@ -68,7 +69,8 @@ namespace HalfStateFrame
 
         protected bool isRenderInit = false;
 
-        public virtual void OnUpdate(float time) {
+        public virtual void OnUpdate(float time)
+        {
             RenderInit();
         }
 
@@ -76,13 +78,14 @@ namespace HalfStateFrame
 
         public abstract void OnExit(out IModel message);
 
-        private void RenderInit() {
+        private void RenderInit()
+        {
             if (!isRenderInit)
             {
                 foreach (var i in RenderInitSeq)
                 {
                     i.RenderInit();
-                    isRenderInit = true; 
+                    isRenderInit = true;
                 }
                 RenderInitSeq.Clear();
             }
@@ -111,8 +114,8 @@ namespace HalfStateFrame
         }
 
         public void RegisterEvent<TParam>(string evn, Action<TParam> act)
-        { 
-            if (events.TryGetValue(evn, out var val)) 
+        {
+            if (events.TryGetValue(evn, out var val))
             {
                 (val as EventItem<TParam>).RegisterEvent(act);
                 Debug.Log($"RegisterAct");
@@ -120,7 +123,7 @@ namespace HalfStateFrame
             }
             EventItem<TParam> ev = new EventItem<TParam>();
             ev.RegisterEvent(act);
-            events.Add(evn, ev); 
+            events.Add(evn, ev);
             Debug.Log($"RegisterEvent:{ev}");
         }
 
@@ -128,33 +131,34 @@ namespace HalfStateFrame
         {
             if (events.TryGetValue(evn, out var val))
             {
-                (val as EventItem<TP1,TP2>).RegisterEvent(act);
+                (val as EventItem<TP1, TP2>).RegisterEvent(act);
                 Debug.Log($"RegisterAct");
                 return;
             }
-            EventItem<TP1,TP2> ev = new EventItem<TP1, TP2>();
+            EventItem<TP1, TP2> ev = new EventItem<TP1, TP2>();
             ev.RegisterEvent(act);
             events.Add(evn, ev);
             Debug.Log($"RegisterEvent:{ev}");
         }
 
-        public void EventTrigger<TParam>(string evn,TParam t) 
+        public void EventTrigger<TParam>(string evn, TParam t)
         {
             if (events.TryGetValue(evn, out var eventItem))
             {
                 (eventItem as EventItem<TParam>).Trigger(t);
                 return;
             }
-
         }
+
         public void EventTrigger<TP1, TP2>(string evn, TP1 t1, TP2 t2)
         {
             if (events.TryGetValue(evn, out var eventItem))
             {
-                (eventItem as EventItem<TP1,TP2>).Trigger(t1,t2);
+                (eventItem as EventItem<TP1, TP2>).Trigger(t1, t2);
                 return;
             }
         }
+
         public TSystem RegisterSystem<TSystem>(TSystem system) where TSystem : ISystem
         {
             Type type = system.GetType();
@@ -162,7 +166,7 @@ namespace HalfStateFrame
             {
                 systems.Add(type, system);
                 system.Init();
-                
+
                 RenderInitSeq.AddLast(system);
                 Debug.Log($"RegisterSystem:{type.Name}");
             }
@@ -211,23 +215,21 @@ namespace HalfStateFrame
             return mono;
         }
 
-       
-
         public void UnRegisterModel<TModel>() where TModel : IModel
         {
             Type type = typeof(TModel);
             if (models.ContainsKey(type))
-            { 
+            {
                 models.Remove(type);
                 Debug.Log($"UnRegisterModel:{type.Name}");
-            } 
+            }
         }
 
         public void UnRegisterEvent(string ev, Action act)
         {
             if (events.ContainsKey(ev))
             {
-                (events[ev] as EventItem).UnRegisterEvent(act); 
+                (events[ev] as EventItem).UnRegisterEvent(act);
             }
         }
 
@@ -252,15 +254,15 @@ namespace HalfStateFrame
             Type type = typeof(TSystem);
             if (!systems.ContainsKey(type))
             {
-                systems.Remove(type);  
-            } 
+                systems.Remove(type);
+            }
         }
 
         public void UnRegisterMono<TMono>() where TMono : IMono
         {
             Type type = typeof(TMono);
             if (!monos.ContainsKey(type))
-            { 
+            {
                 monos.Remove(type);
                 Debug.Log($"UnRegisterMono:{type.Name}");
             }

@@ -1,21 +1,18 @@
-using CoreSystem;
-using DG.Tweening;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UnitHealthUI : MonoBehaviour
 {
-  
     private GameObject emWhite;
-      
+
     [SerializeField]
-    private Image healthBar; 
+    private Image healthBar;
+
     private RectTransform rect;
 
     [SerializeField]
     private StatusPanelUI parentUI;
-
 
     private void Awake()
     {
@@ -24,13 +21,14 @@ public class UnitHealthUI : MonoBehaviour
         parentUI = GetComponentInParent<StatusPanelUI>();
         rect = GetComponent<RectTransform>();
     }
+
     // Start is called before the first frame update
-    void Start()
-    { 
+    private void Start()
+    {
         parentUI.Unit.HealthSystem.OnDamaged += OnHealthBarChanged;
         parentUI.Unit.HealthSystem.OnDead += OnDead;
     }
-     
+
     private void OnHealthBarChanged(object sender, DamageMessage damageMessage)
     {
         float damageNor = damageMessage.Damage / damageMessage.MaxHealth;
@@ -38,8 +36,7 @@ public class UnitHealthUI : MonoBehaviour
         //healthBar.DOFillAmount(endValue, 1f);
         healthBar.fillAmount -= damageNor;
         damageAnima(damageNor, healthBar.fillAmount);
-    } 
-
+    }
 
     private void OnDead(object sender, EventArgs e)
     {
@@ -59,7 +56,6 @@ public class UnitHealthUI : MonoBehaviour
         emW.SetActive(true);
     }
 
-
     private float getEmBarWidth(float damageNor)
     {
         float width = rect.rect.width;
@@ -70,6 +66,5 @@ public class UnitHealthUI : MonoBehaviour
     {
         parentUI.Unit.HealthSystem.OnDamaged -= OnHealthBarChanged;
         parentUI.Unit.HealthSystem.OnDead -= OnDead;
-    } 
-   
+    }
 }

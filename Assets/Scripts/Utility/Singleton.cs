@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-
-public class Singleton<T> where T : Singleton<T>, new()
+﻿public class Singleton<T> where T : Singleton<T>, new()
 {
     private static T instance;
+
     public static T Instance
     {
         get
@@ -18,6 +12,5 @@ public class Singleton<T> where T : Singleton<T>, new()
             }
             return instance;
         }
-    } 
+    }
 }
-

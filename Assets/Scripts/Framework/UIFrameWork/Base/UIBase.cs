@@ -1,11 +1,3 @@
-using Cysharp.Threading.Tasks.Triggers;
-using HalfStateFrame;
-using JetBrains.Annotations;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.Serialization.Json;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public enum UI_Status
@@ -14,13 +6,13 @@ public enum UI_Status
     Open,
     Hide
 }
+
 public enum UI_Level
 {
     Main,
     Game,
     Popup
 }
-
 
 public interface IUIBase
 {
@@ -29,42 +21,42 @@ public interface IUIBase
     public UI_Status UIState { get; }
 
     public UI_Level UILevel { get; }
+
     public UIBase Show();
+
     public void Hide();
+
     public void Close();
 }
 
-
-
 public abstract class UIBase : MonoBehaviour, IUIBase
-{ 
-    public virtual string UIName { get { return null; } }
+{
+    public virtual string UIName
+    { get { return null; } }
 
     public UI_Level UILevel { get => m_Level; set => m_Level = value; }
     protected UI_Level m_Level;
 
-
-    public UI_Status UIState  { get => m_Status; set => m_Status = value; }
+    public UI_Status UIState { get => m_Status; set => m_Status = value; }
     protected UI_Status m_Status = UI_Status.Close;
-   
-
 
     protected UISystem uiSystem;
-
-  
 
     private void Start()
     {
         OnInit();
     }
+
     public void Init(UISystem uiSystem)
-    { 
+    {
         if (this.uiSystem != null) { return; }
         Debug.Log("Init System");
         this.uiSystem = uiSystem;
     }
 
-    protected virtual void OnInit() { }
+    protected virtual void OnInit()
+    { }
+
     public virtual void Close()
     {
         m_Status = UI_Status.Close;
@@ -80,12 +72,10 @@ public abstract class UIBase : MonoBehaviour, IUIBase
     public virtual UIBase Show()
     {
         m_Status = UI_Status.Open;
-        if (gameObject.activeSelf != false) { 
+        if (gameObject.activeSelf != false)
+        {
             gameObject.SetActive(true);
         }
         return this;
     }
-
-    
-
 }

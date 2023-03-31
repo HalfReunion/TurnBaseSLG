@@ -8,21 +8,19 @@ public class GameMainLoop : MonoSingleton<GameMainLoop>
     private IState m_CurrentState;
 
     private Dictionary<Type, IState> m_States;
-     
+
     public IState CurrentState => m_CurrentState;
 
     public override void OnAwake()
-    { 
-        isCanNotDestory = true; 
+    {
+        isCanNotDestory = true;
     }
 
-    
     private void Start()
     {
         Debug.Log("Start");
         SoundManager.Instance.Init();
         SettingInfo.Init();
-
         m_States = new Dictionary<Type, IState>();
         Init();
     }

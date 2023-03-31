@@ -1,33 +1,31 @@
 using Cinemachine;
 using DG.Tweening;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
     [SerializeField]
-    Vector3 moveDir;
+    private Vector3 moveDir;
 
     [SerializeField]
-    Vector3 quDir;
+    private Vector3 quDir;
 
     [SerializeField]
-    float moveSpeed;
+    private float moveSpeed;
 
     [SerializeField]
-    float rotateSpeed;
+    private float rotateSpeed;
 
     [SerializeField]
-    bool isRever;
+    private bool isRever;
 
     [SerializeField]
-    CinemachineVirtualCamera cinemachineVirtualCamera;
-    Vector3 followOffset;
+    private CinemachineVirtualCamera cinemachineVirtualCamera;
+
+    private Vector3 followOffset;
     private const float MIN_FOLLOW_Y_OFFSET = 2f;
     private const float MAX_FOLLOW_Y_OFFSET = 12f;
-    CinemachineTransposer cinemachineTransposer;
+    private CinemachineTransposer cinemachineTransposer;
 
     private int[] rotates = new int[4] { -135, 135, 45, -45 };
 
@@ -35,6 +33,7 @@ public class CameraController : MonoBehaviour
     private int index = 0;
 
     private bool isRotating = false;
+
     private void Start()
     {
         cinemachineTransposer = cinemachineVirtualCamera.GetCinemachineComponent<CinemachineTransposer>();
@@ -67,7 +66,6 @@ public class CameraController : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.E))
             {
-
                 //quDir.y -= 90f;
                 index = ((index + 1) % rotates.Length);
                 isRotating = true;
@@ -78,7 +76,7 @@ public class CameraController : MonoBehaviour
 
         //transform.eulerAngles += quDir * (isRever ? -1f : 1f) * rotateSpeed * Time.deltaTime;
         if (isRotating)
-        { 
+        {
             transform.DORotate(new Vector3(0, rotates[index], 0), 1f).OnComplete(() => { isRotating = false; });
         }
         transform.position += moveDir.normalized * moveSpeed * Time.deltaTime;
@@ -90,7 +88,7 @@ public class CameraController : MonoBehaviour
         }
         if (Input.mouseScrollDelta.y < 0)
         {
-            followOffset.y += zoomAmount; 
+            followOffset.y += zoomAmount;
         }
 
         followOffset.y = Mathf.Clamp(followOffset.y, MIN_FOLLOW_Y_OFFSET, MAX_FOLLOW_Y_OFFSET);

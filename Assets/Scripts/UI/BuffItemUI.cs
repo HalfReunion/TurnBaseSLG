@@ -1,24 +1,18 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class BuffItemUI : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler
+public class BuffItemUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public static EventHandler onMouseOverItem;
     public static EventHandler onMouseNotOverItem;
     private BuffPanelLayout layout;
     private BaseBuff baseBuff;
 
-
     private void Awake()
     {
         layout = GetComponent<BuffPanelLayout>();
     }
-
-   
 
     public void OnPointerExit(PointerEventData eventData)
     {
@@ -34,8 +28,7 @@ public class BuffItemUI : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler
     /// 初始化BuffItem的图标
     /// </summary>
     /// <param name="baseBuff"></param>
-    public void SetBuffItem(BaseBuff baseBuff) { 
-        
+    public void SetBuffItem(BaseBuff baseBuff)
+    {
     }
-   
 }
