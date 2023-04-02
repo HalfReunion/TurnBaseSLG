@@ -1,4 +1,5 @@
 using HalfStateFrame;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -12,7 +13,8 @@ public class TeamCustomSystem : SystemBase
     private Dictionary<int, List<CharacterInfoData>> allCustomTeams;
 
     private SwitchCustomAndMapAnima<List<GameObject>> switchAnima;
-
+    private MapSelectAnima<Transform> mapSelectAnima;
+    
     private Dictionary<string,UISystem> childUISystem = new Dictionary<string, UISystem>();
          
     private int currentTeamID;
@@ -30,14 +32,13 @@ public class TeamCustomSystem : SystemBase
         Current.RegisterModel(viewModel);
         Current.RegisterModel(partyModel);
         Current.RegisterModel(renderModel);
-        Current.RegisterEvent("SaveToSetting", SaveToTeamCustom);
-         
-
-        TeamDataInit();
+        TeamCustomDataInit();
+        InitMapSystemData();
+       
     }
 
     //HACKER 处理初始化 初始化File里拿过来的数据
-    private void TeamDataInit()
+    private void TeamCustomDataInit()
     {
         for (int i = 0; i < 3; i++) { 
             List<CharacterInfoData> temp = GetCustomCharacterInfoDatasByTeamID(i);
@@ -51,6 +52,7 @@ public class TeamCustomSystem : SystemBase
         SoundManager.Instance.PlayBackground("1st PV Animation Theme");
         
         InitSwitchAnima();
+        InitMapComfirmAnima();
     }
     public void RegisterChildSystem(string name, UISystem uiSystem)
     {
@@ -65,13 +67,49 @@ public class TeamCustomSystem : SystemBase
         switchAnima = new SwitchCustomAndMapAnima<List<GameObject>>(io); 
     }
 
+    private void InitMapComfirmAnima() {
+        mapSelectAnima = new MapSelectAnima<Transform>(childUISystem["MapSelectUI"].GetUI<MapSelectUI>().transform);
+
+    }
+
     public void ExecuteSwitchToMap() {
-        switchAnima.Execute(InitMapSystemData);
+        switchAnima.Execute();
     }
 
     #region MapSelectSystem Part
-    private void InitMapSystemData() { 
-        
+    private void InitMapSystemData() {
+        Current.RegisterModel(new MapStageInfoModels());
+
+    }
+
+    public List<StageInfoData> GetAllStageInfoData()
+    {
+        return Current.GetModel<MapStageInfoModels>().GetValue();
+    }
+
+    public void OnClickMapCancel()
+    {
+        switchAnima.CancelExecute();
+    }
+
+    public void OnClickMapConfirm(Action<StageInfoData> data,int stageID)
+    {
+        mapSelectAnima.Execute();
+        data(GetStageInfoByIndex(stageID));
+    }
+
+    public StageInfoData GetStageInfoByIndex(int index)
+    {
+        return GetAllStageInfoData()[index];
+    }
+
+    public StageInfoData GetStageInfoByID(int id) {
+        return Current.GetModel<MapStageInfoModels>().GetValueById(id);
+    }
+
+    public void OnClickStageBack()
+    {
+        mapSelectAnima.CancelExecute();
     }
     #endregion
 
@@ -91,12 +129,7 @@ public class TeamCustomSystem : SystemBase
     public void TriggerToggleEvent(int idx)
     {
         currentTeamID = idx;
-        //if (!allCustomTeams.ContainsKey(idx))
-        //{
-        //    List<CharacterInfoData> temp = GetCustomCharacterInfoDatasByTeamID(idx);
-        //    allCustomTeams.Add(idx, temp);
-        //}
-
+   
         Current.EventTrigger("ChangeOneRenderChar", idx, RenderChangeType.All);
         for (int i = 0; i < allCustomTeams[idx].Count; i++)
         {
@@ -196,5 +229,7 @@ public class TeamCustomSystem : SystemBase
             , idx);
         Current.EventTrigger("ChangeOneRenderChar", idx, RenderChangeType.Del);
     }
+
+  
 }
 #endregion
