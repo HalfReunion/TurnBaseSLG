@@ -18,6 +18,7 @@ public class TeamCustomSystem : SystemBase
     private Dictionary<string,UISystem> childUISystem = new Dictionary<string, UISystem>();
          
     private int currentTeamID;
+    private int stageID;
 
     protected override void OnInit()
     {
@@ -69,11 +70,16 @@ public class TeamCustomSystem : SystemBase
 
     private void InitMapComfirmAnima() {
         mapSelectAnima = new MapSelectAnima<Transform>(childUISystem["MapSelectUI"].GetUI<MapSelectUI>().transform);
-
     }
 
     public void ExecuteSwitchToMap() {
         switchAnima.Execute();
+    }
+
+    /// <summary>
+    /// 根据选择的队伍关卡ID进入游戏
+    /// </summary>
+    public void EnterStage() { 
     }
 
     #region MapSelectSystem Part
@@ -94,6 +100,7 @@ public class TeamCustomSystem : SystemBase
 
     public void OnClickMapConfirm(Action<StageInfoData> data,int stageID)
     {
+        this.stageID = stageID;
         mapSelectAnima.Execute();
         data(GetStageInfoByIndex(stageID));
     }
@@ -112,10 +119,7 @@ public class TeamCustomSystem : SystemBase
         mapSelectAnima.CancelExecute();
     }
     #endregion
-
-
-
-
+     
     #region TeamSystem part
     public void SaveToTeamCustom()
     {
