@@ -2,11 +2,13 @@
 
 public class MainMenuState : StateBase
 {
-    public override void OnEnter(IModel message = null)
+    public override void OnEnter(MessageHandlerBase message = null)
     {
         if (message != null)
         {
-            RegisterModel(message);
+            foreach (var i in message.GetValue) { 
+                RegisterModel(i);
+            }
         }
         //isRenderInit = false;
         RegisterModel(new SceneInfoModel("MainMenu"));
@@ -16,13 +18,15 @@ public class MainMenuState : StateBase
         RegisterMono(new UIChar3DRender().GetAndIns());
     }
 
-    public override void OnExit(out IModel message)
+    public override void OnExit(out MessageHandlerBase message)
     {
-        message = null;
+        OutMainMenuMessage outMainMenuMessage = new OutMainMenuMessage();
+        outMainMenuMessage.Init(GetModel<TeamStageOutPutModel>()); 
+        message = outMainMenuMessage;
         UnRegisterModel<SceneInfoModel>();
         UnRegisterSystem<TeamCustomSystem>();
         UnRegisterSystem<TeamMenuUISystem>();
         UnRegisterSystem<MapSelectUISystem>();
-        UnRegisterMono<UIChar3DRender>();
+        UnRegisterMono<UIChar3DRender>(); 
     }
 }

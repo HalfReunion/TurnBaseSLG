@@ -29,7 +29,9 @@ public class GameMainLoop : MonoSingleton<GameMainLoop>
     {
         //添加场景
         MainMenuState mainMenu = new MainMenuState();
+        FightSceneState fightScene = new FightSceneState();
         m_States.Add(typeof(MainMenuState), mainMenu);
+        m_States.Add(typeof(FightSceneState), fightScene);
         StartState(m_States[typeof(MainMenuState)]);
     }
 
@@ -39,11 +41,10 @@ public class GameMainLoop : MonoSingleton<GameMainLoop>
         m_CurrentState.OnEnter(null);
     }
 
-    public void ChangeState(IState state)
-    {
-        IModel message;
-        m_CurrentState.OnExit(out message);
-        m_CurrentState = state;
+    public void ChangeState(Type state)
+    { 
+        m_CurrentState.OnExit(out var message);
+        m_CurrentState = m_States[state];
         m_CurrentState.OnEnter(message);
     }
 

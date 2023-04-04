@@ -2,12 +2,18 @@
 {
     public interface IMessageHandler
     {
-        void Init();
+        void Init(params IModel[] val);
     }
 
     public abstract class MessageHandlerBase : IMessageHandler
     {
-        public abstract void Init();
+        private IModel[] val;
+        public IModel[] GetValue => val;
+        public void Init(params IModel[] val) {
+            this.val = val;
+        }
+
+        
     }
 
     public interface IModel

@@ -17,9 +17,9 @@ namespace HalfStateFrame
     {
         public void OnUpdate(float time);
 
-        public void OnEnter(IModel message);
+        public void OnEnter(MessageHandlerBase message);
 
-        public void OnExit(out IModel message);
+        public void OnExit(out MessageHandlerBase message);
 
         public void UnRegisterModel<TModel>() where TModel : IModel;
 
@@ -74,9 +74,9 @@ namespace HalfStateFrame
             RenderInit();
         }
 
-        public abstract void OnEnter(IModel message);
+        public abstract void OnEnter(MessageHandlerBase message);
 
-        public abstract void OnExit(out IModel message);
+        public abstract void OnExit(out MessageHandlerBase message);
 
         private void RenderInit()
         {

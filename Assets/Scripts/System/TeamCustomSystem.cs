@@ -23,13 +23,15 @@ public class TeamCustomSystem : SystemBase
     protected override void OnInit()
     {
         Debug.Log("初始化TeamCustomSystem");
+
+        
         currentTeamID = 0;
         allCustomTeams = new Dictionary<int, List<CharacterInfoData>>();
-
+        
         PartyViewModel viewModel = new PartyViewModel();
         PartyTeamCustomModel partyModel = new PartyTeamCustomModel();
         UI3DCharacterData renderModel = new UI3DCharacterData();
-        
+        Current.RegisterModel(new TeamStageOutPutModel());
         Current.RegisterModel(viewModel);
         Current.RegisterModel(partyModel);
         Current.RegisterModel(renderModel);
@@ -79,7 +81,13 @@ public class TeamCustomSystem : SystemBase
     /// <summary>
     /// 根据选择的队伍关卡ID进入游戏
     /// </summary>
-    public void EnterStage() { 
+    public void EnterStage() {
+        Current.GetModel<TeamStageOutPutModel>().CurrentTeamID = currentTeamID;
+        Current.GetModel<TeamStageOutPutModel>().StageID = stageID;
+        Current.GetModel<TeamStageOutPutModel>().CharacterInfoDatas = GetCustomCharacterInfoDatasByTeamID(currentTeamID);
+        Debug.Log($"{stageID},{currentTeamID}");
+        //切换场景
+        SceneLoader.Instance.ChangedToFightScene();
     }
 
     #region MapSelectSystem Part
@@ -133,7 +141,7 @@ public class TeamCustomSystem : SystemBase
     public void TriggerToggleEvent(int idx)
     {
         currentTeamID = idx;
-   
+        
         Current.EventTrigger("ChangeOneRenderChar", idx, RenderChangeType.All);
         for (int i = 0; i < allCustomTeams[idx].Count; i++)
         {
