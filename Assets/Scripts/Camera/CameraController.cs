@@ -36,6 +36,7 @@ public class CameraController : MonoBehaviour
 
     private void Start()
     {
+     
         cinemachineTransposer = cinemachineVirtualCamera.GetCinemachineComponent<CinemachineTransposer>();
         followOffset = cinemachineTransposer.m_FollowOffset;
         transform.eulerAngles = new Vector3(0, rotates[index], 0);
