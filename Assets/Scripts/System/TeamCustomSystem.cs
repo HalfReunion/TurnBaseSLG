@@ -87,7 +87,7 @@ public class TeamCustomSystem : SystemBase
         Current.GetModel<TeamStageOutPutModel>().CharacterInfoDatas = GetCustomCharacterInfoDatasByTeamID(currentTeamID);
         Debug.Log($"{stageID},{currentTeamID}");
         //ÇÐ»»³¡¾°
-        SceneLoader.Instance.ChangedToFightScene();
+        SceneLoader.Instance.ChangedToLoadingScene();
     }
 
     #region MapSelectSystem Part

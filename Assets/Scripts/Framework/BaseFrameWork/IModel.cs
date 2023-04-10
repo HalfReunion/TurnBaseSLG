@@ -1,4 +1,6 @@
-﻿namespace HalfStateFrame
+﻿using Cysharp.Threading.Tasks;
+
+namespace HalfStateFrame
 {
     public interface IMessageHandler
     {
@@ -21,6 +23,20 @@
         public void Init();
     }
 
+    public abstract class AsyncModelBase : IModel, IAsyncable
+    {
+        private string sceneName;
+        public AsyncModelBase(string sceneName) {
+            this.sceneName = sceneName;
+            Init();
+        }
+
+        public virtual void Init() { 
+            AsyncManager.Instance.Add(sceneName, this);
+        }
+        public abstract UniTask InitializeAsync();
+    }
+
     public abstract class Model<T> : IModel
     {
         private T t;
@@ -33,5 +49,6 @@
         public virtual void Init()
         {
         }
+     
     }
 }
