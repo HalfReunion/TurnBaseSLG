@@ -9,8 +9,10 @@ namespace HalfStateFrame
 
     public abstract class MessageHandlerBase : IMessageHandler
     {
+        public string SceneGuide;
         private IModel[] val;
         public IModel[] GetValue => val;
+        
         public void Init(params IModel[] val) {
             this.val = val;
         }
@@ -23,17 +25,21 @@ namespace HalfStateFrame
         public void Init();
     }
 
+   
     public abstract class AsyncModelBase : IModel, IAsyncable
     {
         private string sceneName;
+
+        /// <summary>
+        /// 注册给异步管理器
+        /// </summary>
+        /// <param name="sceneName"></param>
         public AsyncModelBase(string sceneName) {
             this.sceneName = sceneName;
-            Init();
-        }
-
-        public virtual void Init() { 
             AsyncManager.Instance.Add(sceneName, this);
         }
+
+        public abstract void Init();
         public abstract UniTask InitializeAsync();
     }
 

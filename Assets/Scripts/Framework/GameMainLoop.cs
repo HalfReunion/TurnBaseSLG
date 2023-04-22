@@ -14,6 +14,7 @@ public class GameMainLoop : MonoSingleton<GameMainLoop>
     public override void OnAwake()
     {
         isCanNotDestory = true;
+         
     }
 
     private void Start()
