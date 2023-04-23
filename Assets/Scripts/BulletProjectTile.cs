@@ -9,6 +9,7 @@ public class BulletProjectTile : MonoBehaviour
     public void Setup(Vector3 targetPos)
     {
         this.targetPos = targetPos;
+        
     }
 
     // Update is called once per frame

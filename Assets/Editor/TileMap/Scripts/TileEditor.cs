@@ -46,15 +46,16 @@ public class TileEditor : EditorWindow
     private static int gridSize = 9;    // 参考线数量
     private static bool clearOver = false;  // 自动清除不同图层的重叠方块
     private static bool replaceItem = true; // 若为true 则当该地已有方块时以新取代旧
-    private static List<Dictionary<Vector3Int, GameObject>> mapDics = new List<Dictionary<Vector3Int, GameObject>>();   // 地图工厂
+    private static List<Dictionary<Vector3Int, GameObject>> mapDics = new List<Dictionary<Vector3Int, GameObject>>();   // 地图方块资料
     private static bool OnPainting = false; // 是否开始绘制地图
 
     #endregion 地图绘制区变量
 
     #region 存档区变量
-    private static string tempFileName = "";
-    #endregion  存档区变量
 
+    private static string tempFileName = "";
+
+    #endregion 存档区变量
 
     public void OnGUI()
     {
@@ -109,6 +110,86 @@ public class TileEditor : EditorWindow
             //显示地图Item列表
 
             #endregion 显示地图组件
+
+            #region 图层管理
+
+            GUILayout.BeginVertical(GUILayout.Width(windowWidth));
+            {
+                GUILayout.Space(10); //10 pixel空格
+                GUILayout.Box("图层", boxStyle);
+                GUILayout.BeginHorizontal();
+                {
+                    if (!newLayer && !editLayer) // 不是新增或编辑图层才能显示按钮
+                    {
+                        if (GUILayout.Button("新增图层"))
+                        {
+                        }
+
+                        if (GUILayout.Button("编辑图层"))
+                        {
+                        }
+
+                        if (GUILayout.Button("删除图层"))
+                        {
+                        }
+                    }
+                    if (newLayer) // 新增图层状态
+                    {
+                    }
+                    else if (editLayer) // 编辑图层状态
+                    {
+                    }
+                }
+
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.EndVertical();
+
+            #endregion 图层管理
+
+            #region 地图制作区
+
+            GUILayout.BeginVertical();
+            {
+                GUILayout.Space(10);
+                GUILayout.Box("地图制作", boxStyle);
+
+                //设定单位尺寸
+
+                //设定参考线尺寸
+                GUILayout.BeginHorizontal();
+                {
+                    clearOver = GUILayout.Toggle(clearOver, "自动清除不同图层的地图方块");
+                    replaceItem = GUILayout.Toggle(replaceItem, "自动替换");
+                }
+                GUILayout.EndHorizontal();
+
+                if (OnPainting) // 绘制状态中
+                {
+                }
+                else
+                {
+                }
+
+                GUILayout.Space(10);
+                GUILayout.Box("地图数据", boxStyle);
+                GUILayout.BeginHorizontal();
+                {
+                    if (GUILayout.Button("新地图"))
+                    {
+                    }
+                    if (GUILayout.Button("存储"))
+                    {
+                    }
+                    if (GUILayout.Button("加载数据"))
+                    {
+                    }
+                }
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.EndVertical();
+
+            #endregion 地图制作区
         }
         EditorGUILayout.EndScrollView();
     }
@@ -145,8 +226,8 @@ public class TileEditor : EditorWindow
         string res = LocalFileTool.LoadJsonFile(mapInfoFilePath);
         if (res != null)
         {
-            MapItem mapItem = SerializeTool.Deserialize<MapItem>(res);
-            foreach (var i in mapItem.names)
+            string[] names = SerializeTool.Deserialize<string[]>(res);
+            foreach (var i in names)
             {
                 GameObject obj = (GameObject)AssetDatabase.LoadAssetAtPath(i, typeof(GameObject));   // 编辑器专用
                 mapCubeItemPrefabs.Add(obj);
@@ -237,6 +318,8 @@ public class TileEditor : EditorWindow
     private void OnFocus()  //重新获得焦点时调用
     {
         buildMapInfoData();
+        checkInstance();
+        buildMapDic(); //重建地图字典
     }
 
     private void OnEnable()
@@ -248,18 +331,86 @@ public class TileEditor : EditorWindow
     {
     }
 
-    // 检查objInstance
+    // 检查objInstance，不存在则重建
     private void checkInstance()
     {
+        // 不知道要不要销毁GameObject
+        layerObjs.Clear();
+        layerNames.Clear();
+        mapDics.Clear();
         if (objInstance == null)
         {
             objInstance = GameObject.Find("EditorObjInstance");
             if (objInstance == null)
             {
                 objInstance = new GameObject("EditorObjInstance");
+
+                GameObject defaultLayer = new GameObject("Default");
+                defaultLayer.transform.SetParent(objInstance.transform);
+                layerNames.Add("Default");
+                layerObjs.Add(defaultLayer);
+                mapDics.Add(new Dictionary<Vector3Int, GameObject>()); // 列表下标为层级
+                selLayer = 0;
             }
+            return;
+        }
+
+        // 若存在ObjInstance ，则构建数据
+        // 搜索第一层子物体为图层信息
+        Transform[] tr = objInstance.GetComponentsInChildren<Transform>();
+        foreach (Transform t in tr)
+        {
+            if (t.parent == objInstance.transform)
+            {
+                layerObjs.Add(t.gameObject);
+                layerNames.Add(t.name);
+                mapDics.Add(new Dictionary<Vector3Int, GameObject>());
+            }
+        }
+        if (layerObjs.Count == 0) // 若没有子物体，则创建一个当预设图层
+        {
+            GameObject defaultLayer = new GameObject("Default");
+            defaultLayer.transform.SetParent(objInstance.transform);
+            layerNames.Add("Default");
+            layerObjs.Add(defaultLayer);
+            mapDics.Add(new Dictionary<Vector3Int, GameObject>()); // 列表下标为层级
+            selLayer = 0;
         }
     }
 
+    private bool MouseToWorldPos(Vector3 mousePos, int y, out Vector3 mouseWorldPos)
+    {
+        // 图层高度
+        Vector3Int h = new Vector3Int(0, y, 0);
+
+        Ray mouseRay = HandleUtility.GUIPointToWorldRay(mousePos); //获得射线，有点像Camera.ScreenPointToRay
+        // y向量向下，代表鼠标的点击处在画面内
+        if (mouseRay.direction.y <= 0)
+        {
+            mouseRay.origin -= h;
+            float t = -mouseRay.origin.y / mouseRay.direction.y;
+
+            // 取得点击后的世界坐标
+            mouseWorldPos = mouseRay.origin + t * mouseRay.direction + h;
+            return true;
+        }
+        mouseWorldPos = Vector3.zero;
+        return false;
+    }
+
+    // 重建地图
+    private void buildMapDic() { 
+        
+    }
+    
+    private void saveData(string fileName)
+    {
+
+    }
+
+    private void loadData(string fileName)
+    {
+
+    }
     #endregion 系统函数
 }
