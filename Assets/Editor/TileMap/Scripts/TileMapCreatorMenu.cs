@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
-namespace MapCreator
+namespace MapTileCreator
 {
     public class TileMapCreatorMenu
     {
