@@ -349,8 +349,7 @@ namespace MapTileCreator
         private void OnFocus()  //重新获得焦点时调用
         {
             checkInstance();
-            buildMapInfoData();
-            
+            buildMapInfoData(); 
             buildMapDic(); //重建地图字典
         }
 
@@ -574,13 +573,14 @@ namespace MapTileCreator
 
             objInstance = new GameObject(); // 创建新的容器
 
-            objInstance.name = "objInstance";
+            objInstance.name = "EditorObjInstance";
 
             int dictNum = 0;
             foreach (var i in data.layerDatas) {
                 // 建立图层
                 GameObject lObj = new GameObject();
                 lObj.name = i.name;
+                lObj.transform.SetParent(objInstance.transform);
                 lObj.transform.position = new Vector3(0, i.height, 0);
                 layerObjs.Add(lObj); // 加入列表
                 layerNames.Add(i.name);
@@ -595,11 +595,7 @@ namespace MapTileCreator
                     mapDics[dictNum].Add(dicPos,obj); // 把物体加入字典  
                 }
                 dictNum++;
-            }
-         
-            
-           
-
+            } 
         }
 
         private Vector3Int VectorToInt(Vector3 origin)
@@ -850,6 +846,7 @@ namespace MapTileCreator
                         // 设置高度
                         lObj.transform.position = new Vector3(0, layerHeight, 0);
                         lObj.transform.SetParent(objInstance.transform);
+                        lObj.name = layerName;
                         layerObjs.Add(lObj);
                         layerNames.Add(layerName);
                         mapDics.Add(new Dictionary<Vector3Int, GameObject>());  // 为图层增加存储的字典
@@ -859,6 +856,8 @@ namespace MapTileCreator
 
                     if (GUILayout.Button("取消"))
                     {
+                        newLayer = false;
+                        layerName = "";
                     }
                 }
                 GUILayout.EndHorizontal();
