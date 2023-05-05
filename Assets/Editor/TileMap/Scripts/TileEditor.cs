@@ -21,6 +21,9 @@ namespace MapTileCreator
         #region 地图方块部分
 
         private string mapInfoFilePath = "Assets/MapCreator/TileMap/TileMapItems.json";
+        private string mapDetailFilePath = "Assets/MapCreator/TileMap/TileMapDetailInfo.json";
+        
+
         private static List<GameObject> mapCubeItemPrefabs = new List<GameObject>(); //map cube list
         private static List<string> mapCubeItemNames = new List<string>();  //map cube list name
         private static List<Texture> mapCubeItemIcon = new List<Texture>(); //map cube icon
@@ -52,9 +55,21 @@ namespace MapTileCreator
         private static bool clearOver = false;  // 自动清除不同图层的重叠方块
         private static bool replaceItem = true; // 若为true 则当该地已有方块时以新取代旧
         private static List<Dictionary<Vector3Int, GameObject>> mapDics = new List<Dictionary<Vector3Int, GameObject>>();   // 地图方块资料
+        private static List<Dictionary<Vector3Int, int>> costDics = new List<Dictionary<Vector3Int, int>>();   // 地图代价
+
         private static bool OnPainting = false; // 是否开始绘制地图
 
         #endregion 地图绘制区变量
+
+        #region 路径 编辑变量
+
+        private static bool mapTileDetail = false; // 方块详情界面
+        private static List<MapCubeTileDetail> mapCubeTileDetails = new List<MapCubeTileDetail>();
+
+        private List<MapTilePathItem> tiles = new List<MapTilePathItem>();
+        private MapTilePathItem[,] mapTiles;
+
+        #endregion 路径 编辑变量
 
         #region 存档区变量
 
@@ -110,6 +125,27 @@ namespace MapTileCreator
                 GUILayout.EndVertical();
 
                 displayMapItems();
+
+                // 编辑方块的详情
+                if (selNum >= 0)
+                {
+                    GUILayout.BeginVertical();
+                    {
+                        GUILayout.Space(10);
+                        EditorGUILayout.LabelField("方块详情", boxStyle);
+                        GUILayout.BeginHorizontal();
+                        {
+                            GUILayout.Label("方块代价", GUILayout.Width(100));
+                            mapCubeTileDetails[selNum].cost = EditorGUILayout.IntField(mapCubeTileDetails[selNum].cost, GUILayout.Width(60));
+                            GUILayout.Space(10);
+                            GUILayout.Label("该方块是否转换层数", GUILayout.Width(100));
+                            mapCubeTileDetails[selNum].isTran = EditorGUILayout.Toggle(mapCubeTileDetails[selNum].isTran, GUILayout.Width(60));
+                        }
+                        GUILayout.EndHorizontal();
+                    }
+
+                    GUILayout.EndVertical();
+                }
 
                 //显示地图Item列表
 
@@ -220,7 +256,51 @@ namespace MapTileCreator
 
                 #endregion 地图制作区
             }
+
+            GUILayout.BeginVertical();
+            {
+                GUILayout.Space(10f);
+                GUILayout.Box("烘焙路径", boxStyle);
+
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("点击烘焙路径"))
+                {
+                    bakePath();
+                }
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.EndVertical();
+
             EditorGUILayout.EndScrollView();
+        }
+
+        /// <summary>
+        /// 烘焙路径
+        /// </summary>
+        private void bakePath()
+        {
+            mapTiles = new MapTilePathItem[gridSize, gridSize];
+
+            //for (int i = 0; i < gridSize; i++)
+            //{
+            //    for (int j = 0; j < gridSize; j++)
+            //    {
+            //    }
+            //}
+
+            foreach (var io in tiles)
+            { 
+                    Vector3Int v3 = posChange(io.x, 0,io.z);
+                    mapTiles[v3.x, v3.z] = io;
+            }
+
+            string str = SerializeTool.SerializeToFile(mapTiles);
+
+            string defaultPath = tempPath;
+            if (defaultPath == "") defaultPath = Application.dataPath;
+
+            string fileName = EditorUtility.SaveFilePanel("存储数据", defaultPath, tempFileName, "json");
+            LocalFileTool.SaveFileInEditor(str, fileName);
         }
 
         #region 地图组件方法
@@ -244,15 +324,18 @@ namespace MapTileCreator
         {
             // 写一个序列化保存的方法
             LocalFileTool.SaveFileInEditor(mapCubeItemNames.ToArray(), mapInfoFilePath);
+            string it = SerializeTool.SerializeToFile(mapCubeTileDetails);
+            LocalFileTool.SaveFileInEditor(it, mapDetailFilePath);
         }
 
         private void buildMapInfoData()
         {
             clear();
             // 反序列化数据,构建地图信息
-            selNum = 0;
+            selNum = -1;
 
             string res = LocalFileTool.LoadJsonFile(mapInfoFilePath);
+            string details = LocalFileTool.LoadJsonFile(mapDetailFilePath);
             if (res != null)
             {
                 string[] names = SerializeTool.Deserialize<string[]>(res);
@@ -263,6 +346,11 @@ namespace MapTileCreator
                     mapCubeItemNames.Add(i);
                     mapCubeItemIcon.Add(AssetPreview.GetAssetPreview(obj));             // 获得资源省略图
                 }
+            }
+
+            if (details != null)
+            {
+                mapCubeTileDetails = SerializeTool.Deserialize<List<MapCubeTileDetail>>(details);
             }
             Repaint();
         }
@@ -285,8 +373,18 @@ namespace MapTileCreator
             mapCubeItemNames.Add(prefabShort);
             // huode
             mapCubeItemIcon.Add(AssetPreview.GetAssetPreview(bk));
+            addMapCubeDetail();
             saveMapInfoData();
             Repaint();
+        }
+
+        /// <summary>
+        /// 根据地图组件，加入地图详细数据
+        /// </summary>
+        private void addMapCubeDetail()
+        {
+            MapCubeTileDetail cube = new MapCubeTileDetail();
+            mapCubeTileDetails.Add(cube);
         }
 
         private void removeMapItem()
@@ -308,7 +406,8 @@ namespace MapTileCreator
             mapCubeItemIcon.Clear();
             mapCubeItemNames.Clear();
             mapCubeItemPrefabs.Clear();
-            selNum = 0;
+            mapCubeTileDetails.Clear();
+            selNum = -1;
             saveMapInfoData();
         }
 
@@ -340,6 +439,9 @@ namespace MapTileCreator
             mapCubeItemPrefabs.Clear();
             mapCubeItemIcon.Clear();
             mapCubeItemNames.Clear();
+
+            //需要修改一下，因为会清空东西
+            mapCubeTileDetails.Clear();
         }
 
         #endregion 地图组件方法
@@ -349,7 +451,7 @@ namespace MapTileCreator
         private void OnFocus()  //重新获得焦点时调用
         {
             checkInstance();
-            buildMapInfoData(); 
+            buildMapInfoData();
             buildMapDic(); //重建地图字典
         }
 
@@ -376,7 +478,7 @@ namespace MapTileCreator
             layerObjs.Clear();
             layerNames.Clear();
             if (objInstance == null)
-            { 
+            {
                 mapDics.Clear();
                 objInstance = GameObject.Find("EditorObjInstance");
                 if (objInstance == null)
@@ -518,9 +620,9 @@ namespace MapTileCreator
                                 break;      // 若找到编号，就取消
                             }
                         }
-                        
+
                         // 把搜索到的GameObject添加到要存储的block列表中
-                        data.layerDatas[i].blocks.Add(new Block(index,VectorToInt(item.position)));
+                        data.layerDatas[i].blocks.Add(new Block(index, VectorToInt(item.position), mapCubeTileDetails[index].cost));
                     }
                 }
             }
@@ -532,11 +634,12 @@ namespace MapTileCreator
         private void loadData(string fileName)
         {
             MapTileData data = new MapTileData();
-            string json= LocalFileTool.LoadJsonFile(fileName);
+            string json = LocalFileTool.LoadJsonFile(fileName);
             data = SerializeTool.Deserialize<MapTileData>(json);
 
             Transform cam = Camera.main.transform;
-            if (cam != null) {
+            if (cam != null)
+            {
                 cam.position = data.camPos;
                 cam.eulerAngles = data.camRot;
                 Camera.main.GetComponent<Camera>().fieldOfView = data.camFOV;
@@ -544,16 +647,18 @@ namespace MapTileCreator
 
             // 玩家数据
             GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null) {
+            if (player != null)
+            {
                 player.transform.position = data.playerPos;
-                player.transform.eulerAngles = data.playerRot; 
+                player.transform.eulerAngles = data.playerRot;
             }
 
             // 清空资源列表
             mapCubeItemPrefabs.Clear();
             mapCubeItemNames.Clear();
             mapCubeItemIcon.Clear();
-            selNum = 0;
+            mapCubeTileDetails.Clear();
+            selNum = -1;
 
             // 清空地图物件
             layerObjs.Clear();
@@ -562,12 +667,12 @@ namespace MapTileCreator
             DestroyImmediate(objInstance);
 
             // 读取资源
-            foreach (var i in data.resBlocks) {
-                GameObject obj = (GameObject)AssetDatabase.LoadAssetAtPath(i,typeof(GameObject));
+            foreach (var i in data.resBlocks)
+            {
+                GameObject obj = (GameObject)AssetDatabase.LoadAssetAtPath(i, typeof(GameObject));
                 mapCubeItemPrefabs.Add(obj);
                 mapCubeItemNames.Add(i);
                 mapCubeItemIcon.Add(AssetPreview.GetAssetPreview(obj));
-
             }
             saveMapInfoData(); // 存储列表到内存里
 
@@ -576,7 +681,8 @@ namespace MapTileCreator
             objInstance.name = "EditorObjInstance";
 
             int dictNum = 0;
-            foreach (var i in data.layerDatas) {
+            foreach (var i in data.layerDatas)
+            {
                 // 建立图层
                 GameObject lObj = new GameObject();
                 lObj.name = i.name;
@@ -587,15 +693,16 @@ namespace MapTileCreator
                 mapDics.Add(new Dictionary<Vector3Int, GameObject>());
 
                 // 加载所有方块
-                foreach (Block b in i.blocks) {
+                foreach (Block b in i.blocks)
+                {
                     GameObject obj = (GameObject)PrefabUtility.InstantiatePrefab(mapCubeItemPrefabs[b.index]);
                     obj.transform.position = b.pos;
                     obj.transform.SetParent(lObj.transform);
-                    Vector3Int dicPos = new Vector3Int(b.pos.x,0,b.pos.z);
-                    mapDics[dictNum].Add(dicPos,obj); // 把物体加入字典  
+                    Vector3Int dicPos = new Vector3Int(b.pos.x, 0, b.pos.z);
+                    mapDics[dictNum].Add(dicPos, obj); // 把物体加入字典
                 }
                 dictNum++;
-            } 
+            }
         }
 
         private Vector3Int VectorToInt(Vector3 origin)
@@ -783,6 +890,13 @@ namespace MapTileCreator
                         obj.transform.SetParent(layerObjs[selLayer].transform);
 
                         mapDics[selLayer].Add(dicPos, obj); // 把方块信息加入字典
+
+                        MapTilePathItem mapTilePathItem = new MapTilePathItem(mapCubeTileDetails[selNum]);
+                        
+                        //转换到左下角是(0,0)的坐标
+                        mapTilePathItem.x = dx;
+                        mapTilePathItem.z = dz;
+                        tiles.Add(mapTilePathItem);
                     }
                     EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
                 }
@@ -790,6 +904,13 @@ namespace MapTileCreator
         }
 
         #endregion SceneView 绘图用的函数
+
+        private Vector3Int posChange(int x, int y,int z) {
+           
+            int cx = (int)(x + gridSize / 2);
+            int cz = (int)(z + gridSize / 2);
+            return new Vector3Int(cx, y, cz);
+        }
 
         // 新增地图图层
         private void addMapLayer()
@@ -956,9 +1077,10 @@ namespace MapTileCreator
         }
 
         //新地图
-        private void createNewMap() {
+        private void createNewMap()
+        {
             if (!EditorUtility.DisplayDialog(
-                "新地图", "现有地图资料会被清空,确定新建新地图吗？", 
+                "新地图", "现有地图资料会被清空,确定新建新地图吗？",
                 "确定", "取消")) return;
 
             layerObjs.Clear();
@@ -970,25 +1092,29 @@ namespace MapTileCreator
         }
 
         // 存储地图资料
-        private void saveMapData() {
+        private void saveMapData()
+        {
             string defaultPath = tempPath; // 取得先前的数据
             if (defaultPath == "") defaultPath = Application.dataPath;
-            string fileName = EditorUtility.SaveFilePanel("存储数据",defaultPath,tempFileName,"json");
+            string fileName = EditorUtility.SaveFilePanel("存储数据", defaultPath, tempFileName, "json");
 
-            if (fileName != "") { 
+            if (fileName != "")
+            {
                 tempPath = Path.GetDirectoryName(fileName); // 记录当前文件夹，跟之前的类似
                 tempFileName = Path.GetFileName(fileName);
                 saveData(fileName);
-            } 
+            }
         }
 
-        private void loadMapData() {
-            selNum = 0;
+        private void loadMapData()
+        {
+            selNum = -1;
             selLayer = 0;
             string defaultPath = tempPath;
             if (defaultPath == "") defaultPath = Application.dataPath;
-            string fileName = EditorUtility.OpenFilePanel("载入数据",defaultPath,"json");
-            if (fileName != "") {
+            string fileName = EditorUtility.OpenFilePanel("载入数据", defaultPath, "json");
+            if (fileName != "")
+            {
                 tempPath = Path.GetDirectoryName(fileName); // 记录当前文件夹，跟之前的类似
                 tempFileName = Path.GetFileName(fileName);
                 loadData(fileName);
